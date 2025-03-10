@@ -22,6 +22,7 @@
 // }
 
 // import SideBar from "@/components/SideBar";
+import MainBar from "@/components/MainBar";
 // import SideBarComp from "@/components/SideBar";
 import ToastComponent from "@/components/ToastComponent";
 import "@/styles/globals.css";
@@ -51,13 +52,13 @@ export default function App({ Component, pageProps: { session, ...pageProps } })
         <ToastComponent />
 
         {/* Render Component with or without Sidebar based on the condition */}
-        {/* {excludeSideBar ? ( */}
+        {excludeSideBar ? (
           <Component {...pageProps} />
-        {/* ) : (
-          <SideBarComp>
+        ) : (
+          <MainBar>
             <Component {...pageProps} />
-          </SideBarComp>
-        )} */}
+          </MainBar>
+        )}
       </SessionProvider>
     </>
   );
