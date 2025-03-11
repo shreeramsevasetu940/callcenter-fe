@@ -16,8 +16,6 @@ import { integrateGetApi } from "@/utils/api";
 import { Tabs,TabsList,TabsTrigger } from "@/components/ui/tabs"
 import { useRouter } from "next/router";
 import { getSession, useSession } from "next-auth/react";
-import { requireAuthentication } from "@/utils/utils";
-
 
 export default function MemberList() {
   const [activeTab, setActiveTab] = useState('all');
@@ -26,6 +24,7 @@ export default function MemberList() {
   const [currentPage, setCurrentPage] = useState(1);
   const { data: session } = useSession();
   const authToken = session?.user?.token
+  const router = useRouter()
   const url =
     process.env.NEXT_PUBLIC_BASEURL +
     'staff?page=' +
@@ -142,11 +141,3 @@ export default function MemberList() {
     </div>
   );
 }
-
-// export async function getServerSideProps(context) {
-//   return requireAuthentication(context, ({ session }) => {
-//     return {
-//       props: { session },
-//     };
-//   });
-// }
