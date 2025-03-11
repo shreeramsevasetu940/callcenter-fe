@@ -46,20 +46,16 @@ export default function MemberList() {
     useEffect(() => {
       console.log(activeTab,'activeTab')
     }, [activeTab])
-    
+    useEffect(() => {
+      const checkAuthentication = async () => {
+          const session = await getSession();
+          if (!session) {
+              router.push('/sign-in');
+          }
+      };
+      checkAuthentication();
+  }, []); // The empty dependency array ensures that the effect runs only once on mount
 
-    // useEffect(() => {
-    //   const checkAuthentication = async () => {
-    //     const session = await getSession();
-    //     if (!session) {
-    //       router.push('/sign-in');
-    //     } else {
-    //       // Call your callback function here if needed
-    //       // cb(JSON.parse(JSON.stringify({ session })));
-    //     }
-    //   };
-    //   checkAuthentication();
-    // }, []); // The empty dependency array ensures that the effect runs only once on mount  
 
   const totalPages = data?.totalPages;
   return (
@@ -147,10 +143,10 @@ export default function MemberList() {
   );
 }
 
-export async function getServerSideProps(context) {
-  return requireAuthentication(context, ({ session }) => {
-    return {
-      props: { session },
-    };
-  });
-}
+// export async function getServerSideProps(context) {
+//   return requireAuthentication(context, ({ session }) => {
+//     return {
+//       props: { session },
+//     };
+//   });
+// }
