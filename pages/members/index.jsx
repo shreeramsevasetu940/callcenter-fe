@@ -11,11 +11,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {StepBack, StepForward } from "lucide-react";
+import {MoreHorizontal, PlusCircle, StepBack, StepForward } from "lucide-react";
 import { integrateGetApi } from "@/utils/api";
 import { Tabs,TabsList,TabsTrigger } from "@/components/ui/tabs"
 import { useRouter } from "next/router";
 import { getSession, useSession } from "next-auth/react";
+import Link from "next/link";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 export default function MemberList() {
   const [activeTab, setActiveTab] = useState('all');
@@ -34,14 +36,24 @@ export default function MemberList() {
     searchkey +
     '&status='+
     activeTab
+    // useEffect(() => {
+    //   if (authToken) {
+    //     integrateGetApi(url, setData, authToken)
+    //   }else{
+    //     console.log(session,'No auth token')
+    //   }
+    // }, [authToken, searchkey, currentPage,activeTab])
     useEffect(() => {
-
-      if (authToken) {
-        integrateGetApi(url, setData, authToken)
-      }else{
-        console.log(session,'No auth token')
-      }
-    }, [authToken, searchkey, currentPage,activeTab])
+      const handler = setTimeout(() => {
+        if (authToken) {
+          integrateGetApi(url, setData, authToken);
+        } else {
+          console.log(session, 'No auth token');
+        }
+      }, searchkey ? 2000 : 0); // 2 seconds debounce only for `searchkey`
+    
+      return () => clearTimeout(handler); // Clear timeout on dependency change
+    }, [authToken, searchkey, currentPage, activeTab]);
     useEffect(() => {
       console.log(activeTab,'activeTab')
     }, [activeTab])
@@ -55,22 +67,36 @@ export default function MemberList() {
       checkAuthentication();
   }, []); // The empty dependency array ensures that the effect runs only once on mount
 
+  const handleSearch=(e)=>{
+    setCurrentPage(1);
+    setSearchkey(e.target.value)
+  }
 
   const totalPages = data?.totalPages;
   return (
     <div className="space-y-4 p-4">
 <Tabs value={activeTab} onValueChange={setActiveTab}>
-  <TabsList>
-    <TabsTrigger value="all">All</TabsTrigger>
-    <TabsTrigger value="active">Active</TabsTrigger>
-    <TabsTrigger value="inactive">InActive</TabsTrigger>
-    <TabsTrigger value="suspend">Suspend</TabsTrigger>
+ <div className="flex justify-between items-center">
+ <TabsList>
+    <TabsTrigger className={'cursor-pointer'} value="all">All</TabsTrigger>
+    <TabsTrigger className={'cursor-pointer'} value="active">Active</TabsTrigger>
+    <TabsTrigger className={'cursor-pointer'} value="inactive">InActive</TabsTrigger>
+    <TabsTrigger className={'cursor-pointer'} value="suspend">Suspend</TabsTrigger>
   </TabsList>
+  <Link href="/members/add">
+                  <Button size="sm" className="h-7 gap-1 cursor-pointer">
+                  <PlusCircle className="h-3.5 w-3.5" />
+                  <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                    Add Members
+                  </span>
+                </Button>
+                </Link>
+</div>
       <Input
         type="text"
         placeholder="Search Members..."
         value={searchkey}
-        onChange={(e) => setSearchkey(e.target.value)}
+        onChange={handleSearch}
         className="w-full md:w-1/2"
       />
       <Table>
@@ -84,6 +110,7 @@ export default function MemberList() {
               { key: "phone", label: "Phone" },
               { key: "companyMobileNo", label: "CompanyNo" },
               { key: "status", label: "Status" },
+              { key: "action", label: "Action" },
             ].map((column) => (
               <TableHead key={column.key}>
                 {column.label} 
@@ -106,6 +133,25 @@ export default function MemberList() {
                 <TableCell>
                   <Badge>{item.status}</Badge>
                 </TableCell>
+                <TableCell>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                aria-haspopup="true"
+                                size="icon"
+                                variant="ghost"
+                              >
+                                <MoreHorizontal className="h-4 w-4" />
+                                <span className="sr-only">Toggle menu</span>
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                              <DropdownMenuItem>Edit</DropdownMenuItem>
+                              <DropdownMenuItem>Delete</DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TableCell>
               </TableRow>
             ))
           ) : (
