@@ -69,13 +69,13 @@ export default function MemberList() {
 
  const handleStatusUpdate=async(id,status)=>{
       try {
-        const response = await axios.patch(`http://localhost:5000/api/staff/${id}/${status}`,{}, {
+        const response = await axios.patch(`${process.env.NEXT_PUBLIC_API_SERVICE_BACKEND}staff/${id}/${status}`,{}, {
           headers: {
             'Content-Type': 'application/json',
           },
         });
         showToast.success(response?.data?.message);
-       await integrateGetApi(url, setData, authToken);
+        await integrateGetApi(url, setData, authToken);
       } catch (error) {
         showToast.error('Failed to Update Status');
       }

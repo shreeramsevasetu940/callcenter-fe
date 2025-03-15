@@ -103,7 +103,7 @@ const router=useRouter();
     });
   
     try {
-      const response = await axios.post('http://localhost:5000/api/staff', formData, {
+      const response = await axios.post(`{process.env.NEXT_PUBLIC_API_SERVICE_BACKEND}staff`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
