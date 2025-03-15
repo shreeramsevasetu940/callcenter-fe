@@ -18,6 +18,8 @@ import { useRouter } from "next/router";
 import { getSession, useSession } from "next-auth/react";
 import Link from "next/link";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import axios from "axios";
+import { showToast } from "@/components/ToastComponent";
 
 export default function MemberList() {
   const [activeTab, setActiveTab] = useState('all');
@@ -26,7 +28,7 @@ export default function MemberList() {
   const [currentPage, setCurrentPage] = useState(1);
   const { data: session } = useSession();
   const authToken = session?.user?.token
-  const router = useRouter()
+  const router = useRouter();
   const url =
     process.env.NEXT_PUBLIC_BASEURL +
     'staff?page=' +
@@ -36,13 +38,6 @@ export default function MemberList() {
     searchkey +
     '&status='+
     activeTab
-    // useEffect(() => {
-    //   if (authToken) {
-    //     integrateGetApi(url, setData, authToken)
-    //   }else{
-    //     console.log(session,'No auth token')
-    //   }
-    // }, [authToken, searchkey, currentPage,activeTab])
     useEffect(() => {
       const handler = setTimeout(() => {
         if (authToken) {
@@ -71,6 +66,22 @@ export default function MemberList() {
     setCurrentPage(1);
     setSearchkey(e.target.value)
   }
+
+ const handleStatusUpdate=async(id,status)=>{
+      try {
+        const response = await axios.patch(`http://localhost:5000/api/staff/${id}/${status}`,{}, {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        showToast.success(response?.data?.message);
+       await integrateGetApi(url, setData, authToken);
+      } catch (error) {
+        showToast.error('Failed to Update Status');
+      }
+  
+ }
+
 
   const totalPages = data?.totalPages;
   return (
@@ -121,7 +132,7 @@ export default function MemberList() {
         <TableBody>
           {data?.staffList?.length > 0 ? (
             data?.staffList.map((item) => (
-              <TableRow key={item.id}>
+              <TableRow key={item._id}>
                 <TableCell>{item.name}</TableCell>
                 <TableCell>{item.branch}</TableCell>
                 <TableCell>
@@ -147,8 +158,10 @@ export default function MemberList() {
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                               <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                              <DropdownMenuItem>Edit</DropdownMenuItem>
-                              <DropdownMenuItem>Delete</DropdownMenuItem>
+                              <DropdownMenuItem onClick={()=>router.push('/members/edit/'+item?._id)}>
+                              Edit
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={()=>handleStatusUpdate(item?._id,item.status=="suspend"?'active':'suspend')}>{item.status=="suspend"?'Active':'Suspend'}</DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
                         </TableCell>

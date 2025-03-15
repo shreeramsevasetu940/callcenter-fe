@@ -1,10 +1,13 @@
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import axios from 'axios';
 import { showToast } from "./ToastComponent";
-const MemberForm = () => {
-
+import { Button } from "./ui/button";
+import { useRouter } from "next/router";
+import { integrateGetApi } from "@/utils/api";
+const MemberForm = ({staffId=null}) => {
+const router=useRouter();
   const [loading, setLoading] = useState(false);
-
+  const [existingData, setExistingData] = useState({})
   const [memberDetails, setMemberDetails] = useState({
     name: "",
     branch: "",
@@ -13,14 +16,12 @@ const MemberForm = () => {
     joiningDate: "",
     companyMobileNo: "",
   });
-
   const [workExperience, setWorkExperience] = useState({
     workExperience:false,
     lastCompanyWhereYouWork: "",
     workExperienceDescription: "",
     address: "",
   });
-
   const [personalFiles, setPersonalFiles] = useState({
     photo: null,
     AdharCard: null,
@@ -28,7 +29,6 @@ const MemberForm = () => {
     workExperienceCertificate: null,
     signature: null,
   });
-
   const [bankDetails, setBankDetails] = useState({
     fullName: "",
     ifscCode: "",
@@ -36,6 +36,14 @@ const MemberForm = () => {
     branch: "",
     bankName: "",
   });
+
+  useEffect(() => {
+ if (staffId) {
+  console.log('called staff details')
+  integrateGetApi('')
+ }
+  }, [staffId])
+  
 
   const handleMemberChange = (e) => { 
     const { name, value } = e.target;
@@ -103,6 +111,7 @@ const MemberForm = () => {
       
       console.log('Response:', response.data);
       showToast.success('Data submitted successfully');
+      router.push('/members')
     } catch (error) {
       console.error('Error submitting data:', error);
       showToast.error('Failed to submit data');
@@ -248,19 +257,23 @@ const MemberForm = () => {
           </div>
         </div>
       ))}
+      <div className="flex justify-between">
 
-      <button
+      <Button className={'cursor-pointer'} onClick={()=>{router.back()}}>Cancel</Button>
+      <Button
       type="submit"
+      className={'cursor-pointer'}
       onClick={handleSubmit}
-      className="w-full p-2 bg-blue-600 text-white rounded hover:bg-blue-700 flex items-center justify-center"
+      // className="w-full p-2 bg-blue-600 text-white rounded hover:bg-blue-700 flex items-center justify-center"
       disabled={loading}
     >
       {loading ? (
         <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
       ) : (
-        "Submit"
+        staffId?"Update":"Save"
       )}
-    </button>
+    </Button>
+</div>
     </form>
     </>
   );

@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label"
 import { useRouter } from "next/router"
 import { useEffect, useState } from "react"
 import { signIn as nextAuthSignIn, useSession } from 'next-auth/react'
+import { showToast } from "./ToastComponent"
 
 export function LoginForm({
   className,
@@ -25,11 +26,11 @@ export function LoginForm({
       redirect: false,
     })
     if (!res.error) {
-      // successMsg('Login successfully')
+        showToast.success('Login successfully');
       router.push('/')
       // Handle successful sign-in
     } else {
-      // errorMsg(res.error)
+      showToast.error(res.error)
       console.log(res.error, 'this is error')
     }
   }
