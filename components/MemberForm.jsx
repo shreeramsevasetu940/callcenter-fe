@@ -118,61 +118,131 @@ console.log(personalFiles,'personalFiles')
     setBankDetails((prev) => ({ ...prev, [name]: value }));
   };
 
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   setLoading(true);
+  //   // Create FormData object
+  //   const formData = new FormData();
+
+  //   // Append member details
+  //   Object.entries(memberDetails).forEach(([key, value]) => {
+  //     formData.append(key, value);
+  //   });
+  //   formData.append("password", memberDetails?.phone)
+
+  //   // Append work experience details
+  //   Object.entries(workExperience).forEach(([key, value]) => {
+  //     if (key === "address") {
+  //       formData.append(key, value);
+  //     } else {
+  //       formData.append(`personalInfo.${key}`, value);
+  //     }
+  //   });
+
+  //   // Append personal files (images)
+  //   console.log(personalFiles,"datadatadatadatadatadatadatadata");
+  //   Object.entries(personalFiles).forEach(([key, data]) => {
+  //     if (data?.file) {
+  //       if (key === "photo") {
+  //         formData.append(key, data?.file);
+  //       } else {
+  //         formData.append(`personalInfo[${key}]`, data?.file);
+  //       }
+  //     }
+  //   });
+
+  //   // Append bank details
+  //   Object.entries(bankDetails).forEach(([key, value]) => {
+  //     formData.append(`bankDetail.${key}`, value);
+  //   });
+
+  //   try {
+  //     let response;
+  //     if(staffId){
+  //       response = await axios.put(`${process.env.NEXT_PUBLIC_API_SERVICE_BACKEND}staff/${staffId}`, formData, {
+  //         headers: {
+  //           'Content-Type': 'multipart/form-data',
+  //         },
+  //       });
+  //     }else{
+  //       response = await axios.post(`${process.env.NEXT_PUBLIC_API_SERVICE_BACKEND}staff`, formData, {
+  //         headers: {
+  //           'Content-Type': 'multipart/form-data',
+  //         },
+  //       });
+  //     }
+
+  //     console.log('Response:', response.data);
+  //     showToast.success('Data submitted successfully');
+  //     router.push('/members')
+  //   } catch (error) {
+  //     console.error('Error submitting data:', error);
+  //     showToast.error('Failed to submit data');
+  //   }
+  //   finally {
+  //     setLoading(false);
+  //   }
+  // };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    // Create FormData object
+  
     const formData = new FormData();
-
+  
     // Append member details
     Object.entries(memberDetails).forEach(([key, value]) => {
       formData.append(key, value);
     });
-    formData.append("password", memberDetails?.phone)
-
+  
+    formData.append("password", memberDetails?.phone);
+  
     // Append work experience details
     Object.entries(workExperience).forEach(([key, value]) => {
-      if (key === "address") {
-        formData.append(key, value);
-      } else {
-        formData.append(`personalInfo.${key}`, value);
-      }
+      const formKey = key === "address" 
+        ? key 
+        : `personalInfo.${key}`;  // Use dot notation for consistency
+      formData.append(formKey, value);
     });
-
+  
     // Append personal files (images)
     Object.entries(personalFiles).forEach(([key, data]) => {
       if (data?.file) {
-        if (key === "photo") {
-          formData.append(key, data?.file);
-        } else {
-          formData.append(`personalInfo[${key}]`, data?.file);
-        }
+        const formKey = key === "photo" 
+          ? key 
+          : `personalInfo.${key}`;  // Corrected bracket notation to dot notation
+        formData.append(formKey, data?.file);
       }
     });
-
+  
     // Append bank details
     Object.entries(bankDetails).forEach(([key, value]) => {
       formData.append(`bankDetail.${key}`, value);
     });
-
+  
     try {
-      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_SERVICE_BACKEND}staff`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
+      const apiUrl = staffId 
+        ? `${process.env.NEXT_PUBLIC_API_SERVICE_BACKEND}staff/${staffId}`
+        : `${process.env.NEXT_PUBLIC_API_SERVICE_BACKEND}staff`;
+  
+      const response = await axios({
+        method: staffId ? 'put' : 'post',
+        url: apiUrl,
+        data: formData,
+        headers: { 'Content-Type': 'multipart/form-data' },
       });
-
+  
       console.log('Response:', response.data);
       showToast.success('Data submitted successfully');
-      router.push('/members')
+      router.push('/members');
     } catch (error) {
       console.error('Error submitting data:', error);
       showToast.error('Failed to submit data');
-    }
-    finally {
+    } finally {
       setLoading(false);
     }
   };
+  
 
 
   return (
