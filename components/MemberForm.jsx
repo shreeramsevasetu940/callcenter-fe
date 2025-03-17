@@ -5,6 +5,7 @@ import { Button } from "./ui/button";
 import { useRouter } from "next/router";
 import { integrateGetApi } from "@/utils/api";
 import { useSession } from "next-auth/react";
+import moment from "moment";
 const MemberForm = ({ staffId = null }) => {
   const router = useRouter();
   const { data: session } = useSession();
@@ -54,7 +55,7 @@ const MemberForm = ({ staffId = null }) => {
         branch: existingData?.branch,
         email: existingData?.email,
         phone: existingData?.phone,
-        joiningDate: existingData?.joiningDate,
+        joiningDate: moment(existingData?.joiningDate).format('YYYY-MM-DD'),
         companyMobileNo: existingData?.companyMobileNo
       })
       setWorkExperience({
@@ -80,12 +81,6 @@ const MemberForm = ({ staffId = null }) => {
     }
   }, [existingData])
 
-  useEffect(() => {
-console.log(personalFiles,'personalFiles')
-  }, [personalFiles])
-  
-
-
   const handleMemberChange = (e) => {
     const { name, value } = e.target;
     setMemberDetails((prev) => ({ ...prev, [name]: value }));
@@ -95,11 +90,6 @@ console.log(personalFiles,'personalFiles')
     const { name, value } = e.target;
     setWorkExperience((prev) => ({ ...prev, [name]: value }));
   };
-
-  // const handlePersonalFileChange = (e) => {
-  //   const { name, files } = e.target;
-  //   setPersonalFiles((prev) => ({ ...prev, [name]: files[0] }));
-  // };
 
   const handlePersonalFileChange = ({ target: { name, files } }) => {
     if (!files?.[0]) return;
@@ -117,71 +107,6 @@ console.log(personalFiles,'personalFiles')
     const { name, value } = e.target;
     setBankDetails((prev) => ({ ...prev, [name]: value }));
   };
-
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-  //   setLoading(true);
-  //   // Create FormData object
-  //   const formData = new FormData();
-
-  //   // Append member details
-  //   Object.entries(memberDetails).forEach(([key, value]) => {
-  //     formData.append(key, value);
-  //   });
-  //   formData.append("password", memberDetails?.phone)
-
-  //   // Append work experience details
-  //   Object.entries(workExperience).forEach(([key, value]) => {
-  //     if (key === "address") {
-  //       formData.append(key, value);
-  //     } else {
-  //       formData.append(`personalInfo.${key}`, value);
-  //     }
-  //   });
-
-  //   // Append personal files (images)
-  //   Object.entries(personalFiles).forEach(([key, data]) => {
-  //     if (data?.file) {
-  //       if (key === "photo") {
-  //         formData.append(key, data?.file);
-  //       } else {
-  //         formData.append(`personalInfo[${key}]`, data?.file);
-  //       }
-  //     }
-  //   });
-
-  //   // Append bank details
-  //   Object.entries(bankDetails).forEach(([key, value]) => {
-  //     formData.append(`bankDetail.${key}`, value);
-  //   });
-
-  //   try {
-  //     let response;
-  //     if(staffId){
-  //       response = await axios.put(`${process.env.NEXT_PUBLIC_API_SERVICE_BACKEND}staff/${staffId}`, formData, {
-  //         headers: {
-  //           'Content-Type': 'multipart/form-data',
-  //         },
-  //       });
-  //     }else{
-  //       response = await axios.post(`${process.env.NEXT_PUBLIC_API_SERVICE_BACKEND}staff`, formData, {
-  //         headers: {
-  //           'Content-Type': 'multipart/form-data',
-  //         },
-  //       });
-  //     }
-
-  //     showToast.success('Data submitted successfully');
-  //     router.push('/members')
-  //   } catch (error) {
-  //     console.error('Error submitting data:', error);
-  //     showToast.error('Failed to submit data');
-  //   }
-  //   finally {
-  //     setLoading(false);
-  //   }
-  // };
-
  // Function for New Data Submission
 const handleSubmit = async (e) => {
   e.preventDefault();
@@ -333,6 +258,7 @@ const handleUpdate = async (e) => {
               id="branch"
               name="branch"
               onChange={handleMemberChange}
+              value={memberDetails?.branch}
               required
               className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 outline-gray-300 focus:outline-indigo-600 sm:max-w-xs sm:text-sm"
             >
