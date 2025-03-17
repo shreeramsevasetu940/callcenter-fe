@@ -50,9 +50,6 @@ export default function MemberList() {
       return () => clearTimeout(handler); // Clear timeout on dependency change
     }, [authToken, searchkey, currentPage, activeTab]);
     useEffect(() => {
-      console.log(activeTab,'activeTab')
-    }, [activeTab])
-    useEffect(() => {
       const checkAuthentication = async () => {
           const session = await getSession();
           if (!session) {

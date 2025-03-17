@@ -140,7 +140,6 @@ console.log(personalFiles,'personalFiles')
   //   });
 
   //   // Append personal files (images)
-  //   console.log(personalFiles,"datadatadatadatadatadatadatadata");
   //   Object.entries(personalFiles).forEach(([key, data]) => {
   //     if (data?.file) {
   //       if (key === "photo") {
@@ -172,7 +171,6 @@ console.log(personalFiles,'personalFiles')
   //       });
   //     }
 
-  //     console.log('Response:', response.data);
   //     showToast.success('Data submitted successfully');
   //     router.push('/members')
   //   } catch (error) {
@@ -267,7 +265,6 @@ const handleUpdate = async (e) => {
       const formKey = key === "photo" 
         ? key 
         : `personalInfo[${key}]`;
-        console.log(formKey,"dskjsedn")
       formData.append(formKey, data?.file);
     }
   });
