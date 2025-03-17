@@ -184,66 +184,116 @@ console.log(personalFiles,'personalFiles')
   //   }
   // };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-  
-    const formData = new FormData();
-  
-    // Append member details
-    Object.entries(memberDetails).forEach(([key, value]) => {
-      formData.append(key, value);
-    });
-  
-    formData.append("password", memberDetails?.phone);
-  
-    // Append work experience details
-    Object.entries(workExperience).forEach(([key, value]) => {
-      const formKey = key === "address" 
-        ? key 
-        : `personalInfo.${key}`;  // Use dot notation for consistency
-      formData.append(formKey, value);
-    });
-  
-    // Append personal files (images)
-    Object.entries(personalFiles).forEach(([key, data]) => {
-      if (data?.file) {
-        const formKey = key === "photo" 
-          ? key 
-          : `personalInfo.${key}`;  // Corrected bracket notation to dot notation
-        formData.append(formKey, data?.file);
-      }
-    });
-  
-    // Append bank details
-    Object.entries(bankDetails).forEach(([key, value]) => {
-      formData.append(`bankDetail.${key}`, value);
-    });
-  
-    try {
-      const apiUrl = staffId 
-        ? `${process.env.NEXT_PUBLIC_API_SERVICE_BACKEND}staff/${staffId}`
-        : `${process.env.NEXT_PUBLIC_API_SERVICE_BACKEND}staff`;
-  
-      const response = await axios({
-        method: staffId ? 'put' : 'post',
-        url: apiUrl,
-        data: formData,
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
-  
-      console.log('Response:', response.data);
-      showToast.success('Data submitted successfully');
-      router.push('/members');
-    } catch (error) {
-      console.error('Error submitting data:', error);
-      showToast.error('Failed to submit data');
-    } finally {
-      setLoading(false);
-    }
-  };
-  
+ // Function for New Data Submission
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setLoading(true);
 
+  const formData = new FormData();
+
+  // Append member details
+  Object.entries(memberDetails).forEach(([key, value]) => {
+    formData.append(key, value);
+  });
+
+  formData.append("password", memberDetails?.phone);
+
+  // Append work experience details
+  Object.entries(workExperience).forEach(([key, value]) => {
+    const formKey = key === "address" 
+      ? key 
+      : `personalInfo.${key}`;
+    formData.append(formKey, value);
+  });
+
+  // Append personal files (images)
+  Object.entries(personalFiles).forEach(([key, data]) => {
+    if (data?.file) {
+      const formKey = key === "photo" 
+        ? key 
+        : `personalInfo[${key}]`;
+      formData.append(formKey, data?.file);
+    }
+  });
+
+  // Append bank details
+  Object.entries(bankDetails).forEach(([key, value]) => {
+    formData.append(`bankDetail.${key}`, value);
+  });
+
+  try {
+    const response = await axios.post(
+      `${process.env.NEXT_PUBLIC_API_SERVICE_BACKEND}staff`,
+      formData,
+      { headers: { 'Content-Type': 'multipart/form-data' } }
+    );
+
+    console.log('Response:', response.data);
+    showToast.success('Data submitted successfully');
+    router.push('/members');
+  } catch (error) {
+    console.error('Error submitting data:', error);
+    showToast.error('Failed to submit data');
+  } finally {
+    setLoading(false);
+  }
+};
+
+// Function for Updating Data
+const handleUpdate = async (e) => {
+  e.preventDefault();
+  setLoading(true);
+
+  const formData = new FormData();
+
+  // Append member details
+  Object.entries(memberDetails).forEach(([key, value]) => {
+    formData.append(key, value);
+  });
+
+  formData.append("password", memberDetails?.phone);
+
+  // Append work experience details
+  Object.entries(workExperience).forEach(([key, value]) => {
+    const formKey = key === "address"
+      ? key
+      : `personalInfo.${key}`;
+    formData.append(formKey, value);
+  });
+
+  // Append personal files (images) — Exclude URLs and Public IDs
+  Object.entries(personalFiles).forEach(([key, data]) => {
+    if (data?.file && !data?.url && !data?.public_id) {
+      const formKey = key === "photo" 
+        ? key 
+        : `personalInfo[${key}]`;
+        console.log(formKey,"dskjsedn")
+      formData.append(formKey, data?.file);
+    }
+  });
+
+  // Append bank details
+  Object.entries(bankDetails).forEach(([key, value]) => {
+    formData.append(`bankDetail.${key}`, value);
+  });
+
+  try {
+    const response = await axios.put(
+      `${process.env.NEXT_PUBLIC_API_SERVICE_BACKEND}staff/${staffId}`,
+      formData,
+      { headers: { 'Content-Type': 'multipart/form-data' } }
+    );
+
+    console.log('Response:', response.data);
+    showToast.success('Data updated successfully');
+    router.push('/members');
+  } catch (error) {
+    console.error('Error updating data:', error);
+    showToast.error('Failed to update data');
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <>
@@ -393,7 +443,7 @@ console.log(personalFiles,'personalFiles')
           <Button
             type="submit"
             className={'cursor-pointer'}
-            onClick={handleSubmit}
+            onClick={staffId?handleUpdate:handleSubmit}
             // className="w-full p-2 bg-blue-600 text-white rounded hover:bg-blue-700 flex items-center justify-center"
             disabled={loading}
           >
