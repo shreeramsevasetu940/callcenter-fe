@@ -13,7 +13,7 @@ export function LoginForm({
 }) {
 
   const router = useRouter()
-  const { data: session } = useSession()
+  const { data: session } = useSession();
 
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -25,6 +25,7 @@ export function LoginForm({
       password: password,
       redirect: false,
     })
+    console.log(res,"evlrnrjknekejner")
     if (!res.error) {
         showToast.success('Login successfully');
       router.push('/')

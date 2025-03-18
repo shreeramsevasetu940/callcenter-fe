@@ -15,12 +15,11 @@ import {MoreHorizontal, PlusCircle, StepBack, StepForward } from "lucide-react";
 import { integrateGetApi } from "@/utils/api";
 import { Tabs,TabsList,TabsTrigger } from "@/components/ui/tabs"
 import { useRouter } from "next/router";
-import { getSession, useSession } from "next-auth/react";
+import {useSession } from "next-auth/react";
 import Link from "next/link";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import axios from "axios";
 import { showToast } from "@/components/ToastComponent";
-
 export default function MemberList() {
   const [activeTab, setActiveTab] = useState('all');
   const [data, setData] = useState([]);
@@ -49,16 +48,6 @@ export default function MemberList() {
     
       return () => clearTimeout(handler); // Clear timeout on dependency change
     }, [authToken, searchkey, currentPage, activeTab]);
-    useEffect(() => {
-      const checkAuthentication = async () => {
-          const session = await getSession();
-          if (!session) {
-              router.push('/sign-in');
-          }
-      };
-      checkAuthentication();
-  }, []); // The empty dependency array ensures that the effect runs only once on mount
-
   const handleSearch=(e)=>{
     setCurrentPage(1);
     setSearchkey(e.target.value)
@@ -72,7 +61,7 @@ export default function MemberList() {
           },
         });
         showToast.success(response?.data?.message);
-        await integrateGetApi(url, setData, authToken);
+        integrateGetApi(url, setData, authToken);
       } catch (error) {
         showToast.error('Failed to Update Status');
       }
