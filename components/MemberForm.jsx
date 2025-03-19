@@ -88,7 +88,15 @@ const MemberForm = ({ staffId = null }) => {
 
   const handleWorkExperienceChange = (e) => {
     const { name, value } = e.target;
-    setWorkExperience((prev) => ({ ...prev, [name]: value }));
+    if (name=="workExperience"){
+      setWorkExperience((prev) => ({
+        ...prev,
+        [name]: value === "true", // Convert string to boolean
+      }));
+    }
+    else{
+      setWorkExperience((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   const handlePersonalFileChange = ({ target: { name, files } }) => {
@@ -277,9 +285,10 @@ const handleUpdate = async (e) => {
                 type="radio"
                 name="workExperience"
                 value="true"
-                checked={workExperience.workExperience == "true"}
+                checked={workExperience.workExperience === true}
                 onChange={handleWorkExperienceChange}
-              />{" "}
+                aria-label="Yes"
+              />
               Yes
             </label>
             <label>
@@ -287,9 +296,10 @@ const handleUpdate = async (e) => {
                 type="radio"
                 name="workExperience"
                 value="false"
-                checked={workExperience.workExperience == "false"}
+                checked={workExperience.workExperience === false}
                 onChange={handleWorkExperienceChange}
-              />{" "}
+                aria-label="No"
+              />
               No
             </label>
           </div>

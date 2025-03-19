@@ -24,7 +24,7 @@ const data = {
       items: [
         {
           title: "Leads",
-          url: "#",
+          url: "/leads",
         },
         {
           title: "Members",
