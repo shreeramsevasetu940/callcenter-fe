@@ -1,10 +1,9 @@
-import MemberForm from '@/components/MemberForm'
+import Lead from '@/components/Lead'
 import React from 'react'
 
 const add = () => {
   return (
-    
-    <MemberForm/>
+    <Lead/>
   )
 }
 

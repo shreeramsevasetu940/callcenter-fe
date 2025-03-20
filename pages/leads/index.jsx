@@ -13,7 +13,6 @@ import {
 } from "@/components/ui/table";
 import {MoreHorizontal, PlusCircle, StepBack, StepForward } from "lucide-react";
 import { integrateGetApi } from "@/utils/api";
-import { Tabs,TabsList,TabsTrigger } from "@/components/ui/tabs"
 import { useRouter } from "next/router";
 import {useSession } from "next-auth/react";
 import Link from "next/link";
@@ -30,7 +29,7 @@ export default function MemberList() {
   const router = useRouter();
   const url =
     process.env.NEXT_PUBLIC_BASEURL +
-    'staff?page=' +
+    'lead?page=' +
     currentPage +
     '&limit=25'+
     '&search=' +
@@ -45,7 +44,6 @@ export default function MemberList() {
           console.log(session, 'No auth token');
         }
       }, searchkey ? 2000 : 0); // 2 seconds debounce only for `searchkey`
-    
       return () => clearTimeout(handler); // Clear timeout on dependency change
     }, [authToken, searchkey, currentPage, activeTab]);
   const handleSearch=(e)=>{
@@ -73,34 +71,31 @@ export default function MemberList() {
   return (
     <div className="space-y-4 p-4">
  <div className="flex justify-between items-center">
-  <Link href="/members/add">
-                  <Button size="sm" className="h-7 gap-1 cursor-pointer">
-                  <PlusCircle className="h-3.5 w-3.5" />
-                  <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                    Add Members
-                  </span>
-                </Button>
-                </Link>
-</div>
+  
       <Input
         type="text"
-        placeholder="Search Members..."
+        placeholder="Search Leads..."
         value={searchkey}
         onChange={handleSearch}
         className="w-full md:w-1/2"
       />
+      <Link href="/leads/add">
+                  <Button size="sm" className="h-7 gap-1 cursor-pointer">
+                  <PlusCircle className="h-3.5 w-3.5" />
+                  <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                    Add Leads
+                  </span>
+                </Button>
+                </Link>
+</div>
+
       <Table>
         <TableHeader>
           <TableRow>
             {[
               { key: "name", label: "Name" },
-              { key: "branch", label: "Branch" },
-              { key: "role", label: "Role" },
-              { key: "email", label: "Email" },
               { key: "phone", label: "Phone" },
-              { key: "companyMobileNo", label: "CompanyNo" },
-              { key: "status", label: "Status" },
-              { key: "action", label: "Action" },
+              { key: "address", label: "Address" },
             ].map((column) => (
               <TableHead key={column.key}>
                 {column.label} 
@@ -109,20 +104,12 @@ export default function MemberList() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {data?.staffList?.length > 0 ? (
-            data?.staffList.map((item) => (
+          {data?.length > 0 ? (
+            data?.map((item) => (
               <TableRow key={item._id}>
                 <TableCell>{item.name}</TableCell>
-                <TableCell>{item.branch}</TableCell>
-                <TableCell>
-                  <Badge>{item.role}</Badge>
-                </TableCell>
-                <TableCell>{item.email}</TableCell>
                 <TableCell>{item.phone}</TableCell>
-                <TableCell>{item.companyMobileNo}</TableCell>
-                <TableCell>
-                  <Badge>{item.status}</Badge>
-                </TableCell>
+                <TableCell>{item.address}</TableCell>
                 <TableCell>
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
@@ -143,7 +130,7 @@ export default function MemberList() {
                               <DropdownMenuItem onClick={()=>handleStatusUpdate(item?._id,item.status=="suspend"?'active':'suspend')}>{item.status=="suspend"?'Active':'Suspend'}</DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
-                        </TableCell>
+                </TableCell>
               </TableRow>
             ))
           ) : (
