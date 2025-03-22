@@ -246,6 +246,7 @@ const handleUpdate = async (e) => {
                 <input
                   id={name}
                   name={name}
+                  disabled={staffId&&name==="phone"}
                   type={type}
                   value={memberDetails[name]}
                   onChange={handleMemberChange}
