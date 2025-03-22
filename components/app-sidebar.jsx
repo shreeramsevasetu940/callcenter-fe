@@ -27,8 +27,20 @@ const data = {
           url: "/leads",
         },
         {
+          title: "Products",
+          url: "/products",
+        },
+        {
           title: "Members",
           url: "/members",
+        },
+        {
+          title: "Orders",
+          url: "/orders",
+        },
+        {
+          title: "Addresses",
+          url: "/adresses",
         },
       ],
     },
