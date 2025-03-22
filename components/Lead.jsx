@@ -50,7 +50,7 @@ export default function Lead({ Children, item = null, refechData = () => { } }) 
       setLeadDetails({ phone: '', name: '', address: '' });
       setRemarks([{ reason: '' }])
     }
-  }
+  } 
 
   const handleLeadChange = (e) => {
     const { name, value } = e.target;
