@@ -37,6 +37,21 @@ export default function Lead({ Children, item = null, refechData = () => { } }) 
   }, [item])
 
 
+  const handleClear=()=>{
+    if (item) {
+      setLeadDetails({
+        phone: item?.phone,
+        name: item?.name,
+        address: item?.address
+      })
+      setRemarks(item?.remark ?? [{ reason: '' }])
+    }
+    else{ 
+      setLeadDetails({ phone: '', name: '', address: '' });
+      setRemarks([{ reason: '' }])
+    }
+  }
+
   const handleLeadChange = (e) => {
     const { name, value } = e.target;
     setLeadDetails((prev) => ({ ...prev, [name]: value }));
@@ -78,8 +93,7 @@ export default function Lead({ Children, item = null, refechData = () => { } }) 
 
       if (response.status === 200 || response.status === 201) {
         refechData();
-        setLeadDetails({ phone: '', name: '', address: '' });
-        setRemarks([{ reason: '' }])
+        handleClear();
         showToast.success('Data submitted successfully');
         console.log('Data submitted successfully:', response.data);
       } else {
@@ -96,7 +110,12 @@ export default function Lead({ Children, item = null, refechData = () => { } }) 
   };
 
   return (
-    <Dialog >
+    <Dialog 
+    onOpenChange={(isOpen) => {
+    if (!isOpen) {
+      handleClear(); // Dialog close hone par clear function ko call karega
+    }
+  }}>
       <DialogTrigger asChild>
         {Children}
       </DialogTrigger>
