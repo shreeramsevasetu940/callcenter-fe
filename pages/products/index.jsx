@@ -72,6 +72,7 @@ export default function ProductList() {
             {[
               { key: "name", label: "Name" },
               { key: "price", label: "Price" },
+              { key: "action", label: "Action" },
             ].map((column) => (
               <TableHead key={column.key}>
                 {column.label}
