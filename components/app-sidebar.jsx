@@ -19,7 +19,7 @@ import {
 const data = {
   navMain: [
     {
-      title: "Getting Started",
+      title: "Admin",
       url: "#",
       items: [
         {
@@ -33,123 +33,58 @@ const data = {
       ],
     },
     {
-      title: "Building Your Application",
+      title: "Branch Manager",
       url: "#",
       items: [
         {
-          title: "Routing",
-          url: "#",
+          title: "Leads",
+          url: "/leads",
         },
         {
-          title: "Data Fetching",
-          url: "#",
-          isActive: true,
-        },
-        {
-          title: "Rendering",
-          url: "#",
-        },
-        {
-          title: "Caching",
-          url: "#",
-        },
-        {
-          title: "Styling",
-          url: "#",
-        },
-        {
-          title: "Optimizing",
-          url: "#",
-        },
-        {
-          title: "Configuring",
-          url: "#",
-        },
-        {
-          title: "Testing",
-          url: "#",
-        },
-        {
-          title: "Authentication",
-          url: "#",
-        },
-        {
-          title: "Deploying",
-          url: "#",
-        },
-        {
-          title: "Upgrading",
-          url: "#",
-        },
-        {
-          title: "Examples",
-          url: "#",
+          title: "Members",
+          url: "/members",
         },
       ],
     },
     {
-      title: "API Reference",
+      title: "Staff",
       url: "#",
       items: [
         {
-          title: "Components",
-          url: "#",
+          title: "Leads",
+          url: "/leads",
         },
         {
-          title: "File Conventions",
-          url: "#",
-        },
-        {
-          title: "Functions",
-          url: "#",
-        },
-        {
-          title: "next.config.js Options",
-          url: "#",
-        },
-        {
-          title: "CLI",
-          url: "#",
-        },
-        {
-          title: "Edge Runtime",
-          url: "#",
+          title: "Members",
+          url: "/members",
         },
       ],
     },
     {
-      title: "Architecture",
+      title: "Courier Manager",
       url: "#",
       items: [
         {
-          title: "Accessibility",
-          url: "#",
+          title: "Leads",
+          url: "/leads",
         },
         {
-          title: "Fast Refresh",
-          url: "#",
-        },
-        {
-          title: "Next.js Compiler",
-          url: "#",
-        },
-        {
-          title: "Supported Browsers",
-          url: "#",
-        },
-        {
-          title: "Turbopack",
-          url: "#",
+          title: "Members",
+          url: "/members",
         },
       ],
     },
     {
-      title: "Community",
+      title: "Courier Boy",
       url: "#",
       items: [
         {
-          title: "Contribution Guide",
-          url: "#",
+          title: "Leads",
+          url: "/leads",
+        },
+        {
+          title: "Members",
+          url: "/members",
         },
       ],
     },
