@@ -11,29 +11,31 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Textarea } from "./ui/textarea";
 import { useSession } from "next-auth/react";
 import axios from "axios";
+import { showToast } from "./ToastComponent";
+import moment from "moment";
 
-export default function Lead({Children,item=null,refechData=()=>{}}) {
+export default function Lead({ Children, item = null, refechData = () => { } }) {
   const [loading, setLoading] = useState(false);
   const dialogCloseRef = useRef(null);
   const [leadDetails, setLeadDetails] = useState({ phone: '', name: '', address: '' });
   const [remarks, setRemarks] = useState([{ reason: '' }]);
- const { data: session } = useSession();
+  const { data: session } = useSession();
   const authToken = session?.user?.token
   useEffect(() => {
-    if(item){
-    setLeadDetails({
-      phone: item?.phone,
-      name: item?.name,
-      address: item?.address
-    })
-    setRemarks(item?.remark??[{ reason: '' }])
-  }
+    if (item) {
+      setLeadDetails({
+        phone: item?.phone,
+        name: item?.name,
+        address: item?.address
+      })
+      setRemarks(item?.remark ?? [{ reason: '' }])
+    }
   }, [item])
-  
+
 
   const handleLeadChange = (e) => {
     const { name, value } = e.target;
@@ -55,18 +57,18 @@ export default function Lead({Children,item=null,refechData=()=>{}}) {
     e.preventDefault();
     setLoading(true); // Start loading
     try {
-      const payload = { ...leadDetails, remark:remarks?.filter(obj => obj.reason?.trim()) };
+      const payload = { ...leadDetails, remark: remarks?.filter(obj => obj.reason?.trim()) };
       let response;
-      if(item){
-        response = await axios.put(process.env.NEXT_PUBLIC_BASEURL+'lead/'+item?._id, payload, {
+      if (item) {
+        response = await axios.put(process.env.NEXT_PUBLIC_BASEURL + 'lead/' + item?._id, payload, {
           headers: {
             "auth-token": authToken,
             'Content-Type': 'application/json',
           },
         });
       }
-      else{
-        response = await axios.post(process.env.NEXT_PUBLIC_BASEURL+'lead', payload, {
+      else {
+        response = await axios.post(process.env.NEXT_PUBLIC_BASEURL + 'lead', payload, {
           headers: {
             "auth-token": authToken,
             'Content-Type': 'application/json',
@@ -74,13 +76,18 @@ export default function Lead({Children,item=null,refechData=()=>{}}) {
         });
       }
 
-      if (response.status === 200||response.status === 201) {
+      if (response.status === 200 || response.status === 201) {
         refechData();
+        setLeadDetails({ phone: '', name: '', address: '' });
+        setRemarks([{ reason: '' }])
+        showToast.success('Data submitted successfully');
         console.log('Data submitted successfully:', response.data);
       } else {
+        showToast.error('Failed to submit data:', response.statusText);
         console.error('Failed to submit data:', response.statusText);
       }
     } catch (error) {
+      showToast.error('Failed to submit data:');
       console.error('Error while submitting data:', error.message);
     } finally {
       dialogCloseRef.current?.click();
@@ -91,7 +98,7 @@ export default function Lead({Children,item=null,refechData=()=>{}}) {
   return (
     <Dialog >
       <DialogTrigger asChild>
-                  {Children}
+        {Children}
       </DialogTrigger>
       <DialogContent>
         <div className="flex flex-col gap-2">
@@ -102,31 +109,48 @@ export default function Lead({Children,item=null,refechData=()=>{}}) {
         <form className="space-y-5">
           <div className="space-y-4">
             {[{ label: 'Phone', name: 'phone' }, { label: 'Name', name: 'name' }, { label: 'Address', name: 'address' }].map(({ label, name }) => (
-                <div key={label} className="*:not-first:mt-2">
-                  <Label htmlFor={name}>{label}</Label>
-                {name!=="address"?<Input id={name}
-                    name={name}
-                    value={leadDetails[name]}
-                    onChange={handleLeadChange}
-                    type="text" required />:
+              <div key={label} className="*:not-first:mt-2">
+                <Label htmlFor={name}>{label}</Label>
+                {name !== "address" ? <Input id={name}
+                  name={name}
+                  value={leadDetails[name]}
+                  onChange={handleLeadChange}
+                  type="text" required /> :
                   <Textarea id={name}
                     name={name}
                     value={leadDetails[name]}
                     onChange={handleLeadChange}
                     placeholder="Type your address here." />}
-                </div>
+              </div>
             ))}
             <div className="*:not-first:mt-2">
               <Label>Remarks</Label>
               {remarks.map((remark, index) => (
-                <div key={index} className="flex items-center gap-2">
-                  <Input
-                    type="text"
-                    value={remark.reason}
-                    onChange={(e) => handleRemarkChange(index, e.target.value)}
-                    required
-                  />
-                </div>
+                <>
+                  <div
+                    key={index}
+                    className={`flex items-center gap-2`}
+                  >
+                    <div
+                      className={`p-2 rounded-lg shadow-md w-full text-sm ${remark?.date && 'bg-gray-200'} text-black`}
+                    >
+                      <Input
+                        type="text"
+                        value={remark.reason}
+                        disabled={remark.date}
+                        onChange={(e) => handleRemarkChange(index, e.target.value)}
+                        required
+                        className="bg-transparent border-none outline-none w-full"
+                      />
+                      <hr />
+                      <span
+                        className={`block text-xs mt-1 text-right text-black/50`}
+                      >
+                        {moment(remark?.date).format('lll')}
+                      </span>
+                    </div>
+                  </div>
+                </>
               ))}
               <Button
                 type="button"

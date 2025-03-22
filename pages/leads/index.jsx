@@ -1,6 +1,5 @@
 "use client";
 import { useState, useEffect } from "react";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -33,12 +32,6 @@ export default function LeadList() {
       integrateGetApi(url, setData, authToken);
     }
 
-    useEffect(() => {
-      console.log(data,"vsiudklinm")
-
-    }, [data])
-    
-
   useEffect(() => {
     const handler = setTimeout(() => {
       if (authToken) {
@@ -53,7 +46,6 @@ export default function LeadList() {
     setCurrentPage(1);
     setSearchkey(e.target.value)
   }
-
 
   const totalPages = data?.totalPages??0;
   return (
