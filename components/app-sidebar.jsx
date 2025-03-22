@@ -37,11 +37,7 @@ const data = {
         {
           title: "Orders",
           url: "/orders",
-        },
-        {
-          title: "Addresses",
-          url: "/adresses",
-        },
+        }
       ],
     },
     {
