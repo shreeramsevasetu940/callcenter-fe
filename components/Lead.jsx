@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogHeader,
   DialogTitle,
@@ -10,12 +11,29 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useState } from 'react';
+import {useEffect, useRef, useState } from 'react';
 import { Textarea } from "./ui/textarea";
+import { useSession } from "next-auth/react";
+import axios from "axios";
 
-export default function Lead() {
+export default function Lead({Children,item=null,refechData=()=>{}}) {
+  const [loading, setLoading] = useState(false);
+  const dialogCloseRef = useRef(null);
   const [leadDetails, setLeadDetails] = useState({ phone: '', name: '', address: '' });
   const [remarks, setRemarks] = useState([{ reason: '' }]);
+ const { data: session } = useSession();
+  const authToken = session?.user?.token
+  useEffect(() => {
+    if(item){
+    setLeadDetails({
+      phone: item?.phone,
+      name: item?.name,
+      address: item?.address
+    })
+    setRemarks(item?.remark??[{ reason: '' }])
+  }
+  }, [item])
+  
 
   const handleLeadChange = (e) => {
     const { name, value } = e.target;
@@ -33,16 +51,47 @@ export default function Lead() {
   };
 
   const isAddRemarkDisabled = remarks.some((remark) => !remark.reason.trim());
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log({ leadDetails, remarks });
+    setLoading(true); // Start loading
+    try {
+      const payload = { ...leadDetails, remark:remarks?.filter(obj => obj.reason?.trim()) };
+      let response;
+      if(item){
+        response = await axios.put(process.env.NEXT_PUBLIC_BASEURL+'lead/'+item?._id, payload, {
+          headers: {
+            "auth-token": authToken,
+            'Content-Type': 'application/json',
+          },
+        });
+      }
+      else{
+        response = await axios.post(process.env.NEXT_PUBLIC_BASEURL+'lead', payload, {
+          headers: {
+            "auth-token": authToken,
+            'Content-Type': 'application/json',
+          },
+        });
+      }
+
+      if (response.status === 200||response.status === 201) {
+        refechData();
+        console.log('Data submitted successfully:', response.data);
+      } else {
+        console.error('Failed to submit data:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error while submitting data:', error.message);
+    } finally {
+      dialogCloseRef.current?.click();
+      setLoading(false); // Stop loading
+    }
   };
 
   return (
     <Dialog >
       <DialogTrigger asChild>
-        <Button variant="outline">Card details</Button>
+                  {Children}
       </DialogTrigger>
       <DialogContent>
         <div className="flex flex-col gap-2">
@@ -89,11 +138,20 @@ export default function Lead() {
               </Button>
             </div>
           </div>
-
-          <Button onClick={handleSubmit} type="button" className="w-full">
-            Save
+          <Button
+            type="submit"
+            className={'cursor-pointer w-full'}
+            onClick={handleSubmit}
+            disabled={loading}
+          >
+            {loading ? (
+              <div className=" h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+            ) : (
+              item ? "Update" : "Save"
+            )}
           </Button>
         </form>
+        <DialogClose ref={dialogCloseRef} />
       </DialogContent>
     </Dialog>
   );
