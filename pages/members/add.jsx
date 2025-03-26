@@ -3,7 +3,6 @@ import React from 'react'
 
 const add = () => {
   return (
-    
     <MemberForm/>
   )
 }

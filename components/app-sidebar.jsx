@@ -23,21 +23,25 @@ const data = {
       url: "#",
       items: [
         {
-          title: "Leads",
-          url: "/leads",
+          title: "Members",
+          url: "/members",
         },
         {
           title: "Products",
           url: "/products",
         },
         {
-          title: "Members",
-          url: "/members",
+          title: "Leads",
+          url: "/leads",
+        },
+        {
+          title: "Addresses",
+          url: "/addresses",
         },
         {
           title: "Orders",
           url: "/orders",
-        }
+        },
       ],
     },
     {
