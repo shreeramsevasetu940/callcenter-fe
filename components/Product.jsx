@@ -12,7 +12,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useEffect, useRef, useState } from 'react';
-import { Textarea } from "./ui/textarea";
 import { useSession } from "next-auth/react";
 import axios from "axios";
 import { showToast } from "./ToastComponent";
