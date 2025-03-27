@@ -68,26 +68,11 @@ useEffect(() => {
   const handleProductChange = (index, field, value) => {
     const updatedProducts = [...products];
     updatedProducts[index][field] = value;
-    if(field=="price"||field=="qty"){
-      setOrderDetails((prev) => ({
-        ...prev,
-        price: products.reduce(
-          (acc, product) =>
-            acc + Number(product.price || 0) * Number(product.qty || 1),
-          0
-        ),
-      }));
-    }
     setProducts(updatedProducts);
   };
 
   const handleAddProduct = () => {
     setProducts([...products, { name: '', id: '', qty: 1 }]);
-  };
-
-  const handleRemoveProduct = (index) => {
-    const updatedProducts = products.filter((_, idx) => idx !== index);
-    setProducts(updatedProducts);
   };
 
   const handleSubmit = async (e) => {
@@ -142,7 +127,7 @@ useEffect(() => {
 <div className="flex flex-col gap-1">
   {products?.map((product, index) => (
     <div key={index} className="flex flex-col border-2 rounded-lg p-1">
-    <div className={`flex ${products?.length!=1&&'space-x-2'}`}>
+    <div className="flex space-x-2">
     <Select
         value={product?.name}
         onValueChange={(value) => {
@@ -162,7 +147,7 @@ useEffect(() => {
           ))}
         </SelectContent>
       </Select>
-    {products?.length!=1&&<Button variant={'destructive'} onClick={() => handleRemoveProduct(index)}>Remove</Button>}
+    {products?.length!=1&&<Button variant={'destructive'}>Remove</Button>}
     </div>
 
       <div className="flex gap-2">
@@ -191,10 +176,6 @@ useEffect(() => {
     </div>
   ))}
 
-  <div className="*:not-first:mt-2">
-                <Label htmlFor={'price'}>Price</Label>
-                  <Input id={"price"} name={"price"} value={orderDetails["price"]??products?.reduce((acc, product) => acc + (Number(product.price || 0) * Number(product.qty || 1)), 0)} onChange={handleOrderChange} type={'number'} required />
-  </div>
   <Button type="button" disabled={products.some((product) => !product.name?.trim())||allProducts?.productList?.length==products?.length} onClick={handleAddProduct} className="mt-2">
     Add Product
   </Button>
@@ -204,8 +185,9 @@ useEffect(() => {
             {[
               { label: 'Phone', name: 'phone', type: 'tel' },
               { label: 'Name', name: 'name', type: 'text' },
-              { label: 'Address', name: 'address', type: 'textarea' },
-            ].map(({ label, name, type}) => (
+              { label: 'Price', name: 'price', type: 'number' },
+              { label: 'Address', name: 'address', type: 'textarea' }
+            ].map(({ label, name, type }) => (
               <div key={label} className="*:not-first:mt-2">
                 <Label htmlFor={name}>{label}</Label>
                 {type === "textarea" ? (
