@@ -22,12 +22,10 @@ import { integrateGetApi } from "@/utils/api";
 export default function Order({ Children, item = null, refechData = () => { } }) {
   const [loading, setLoading] = useState(false);
   const dialogCloseRef = useRef(null);
-  const [orderDetails, setOrderDetails] = useState({ phone: '', name: '', address: '', price: '' });
+  const [orderDetails, setOrderDetails] = useState({ phone: '', name: '', address: '', price: '',deliveryPartner:'' });
   const [products, setProducts] = useState([{ name: '', id: '', qty: 1 }]);
-  const [deliveryPartner, setDeliveryPartner] = useState('');
   const [step, setStep] = useState(1);
   const [allProducts, setAllProducts] = useState(null);
-
   const { data: session } = useSession();
   const authToken = session?.user?.token;
 
@@ -46,18 +44,17 @@ export default function Order({ Children, item = null, refechData = () => { } })
         phone: item?.phone,
         name: item?.name,
         address: item?.address,
-        price: item?.price || ''
+        price: item?.price || '',
+        deliveryPartner:item?.deliveryPartner||''
       });
       setProducts(item?.products ?? [{ name: '', id: '', qty: 1 }]);
-      setDeliveryPartner(item?.deliveryPartner || '');
     }
   }, [item]);
 
   const handleClear = () => {
     setStep(1);
-    setOrderDetails({ phone: '', name: '', address: '', price: '' });
+    setOrderDetails({ phone: '', name: '', address: '', price: '',deliveryPartner:'' });
     setProducts([{ name: '', id: '', qty: 1 }]);
-    setDeliveryPartner('');
   };
 
   const handleOrderChange = (e) => {
@@ -97,8 +94,7 @@ export default function Order({ Children, item = null, refechData = () => { } })
     try {
       const payload = {
         ...orderDetails,
-        products,
-        deliveryPartner
+        products
       };
 
       let response;
@@ -116,13 +112,13 @@ export default function Order({ Children, item = null, refechData = () => { } })
         refechData();
         handleClear();
         showToast.success('Data submitted successfully');
+        dialogCloseRef.current?.click();
       } else {
         showToast.error('Failed to submit data:', response.statusText);
       }
     } catch (error) {
       showToast.error('Failed to submit data');
     } finally {
-      dialogCloseRef.current?.click();
       setLoading(false);
     }
   };
@@ -136,119 +132,168 @@ export default function Order({ Children, item = null, refechData = () => { } })
         <DialogHeader>
           <DialogTitle className="text-left">Order Details</DialogTitle>
         </DialogHeader>
-        <form className="space-y-5">
-          {step == 1 ? <div className="space-y-4">
-            {/* Products Section */}
-            <div className="flex flex-col gap-1">
-              {products?.map((product, index) => (
-                <div key={index} className="flex flex-col border-2 rounded-lg p-1">
-                  <div className={`flex ${products?.length != 1 && 'space-x-2'}`}>
-                    <Select
-                      value={product?.name}
-                      onValueChange={(value) => {
-                        const selectedProduct = allProducts?.productList?.find((p) => p.name === value);
-                        handleProductChange(index, 'name', value);
-                        handleProductChange(index, 'price', selectedProduct?.price || 0);
-                      }}
-                    >
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Name" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {allProducts?.productList?.map((product, idx) => (
-                          <SelectItem key={idx} value={product?.name}>
-                            {product?.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    {products?.length != 1 && <Button variant={'destructive'} onClick={() => handleRemoveProduct(index)}>Remove</Button>}
+        {step == 1 ? <div className="space-y-4">
+          {/* Products Section */}
+          <div className="flex flex-col gap-1">
+            {products?.map((product, index) => (
+              <div key={index} className="flex flex-col border-2 rounded-lg p-1">
+                <div className={`flex ${products?.length != 1 && 'space-x-2'}`}>
+                  <Select
+                    value={product?.name}
+                    onValueChange={(value) => {
+                      const selectedProduct = allProducts?.productList?.find((p) => p.name === value);
+                      handleProductChange(index, 'name', value);
+                      handleProductChange(index, 'price', selectedProduct?.price || 0);
+                    }}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Name" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {allProducts?.productList?.map((product, idx) => (
+                        <SelectItem key={idx} value={product?.name}>
+                          {product?.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {products?.length != 1 && <Button variant={'destructive'} onClick={() => handleRemoveProduct(index)}>Remove</Button>}
+                </div>
+
+                <div className="flex gap-2">
+                  <div className="flex-1">
+                    <Label htmlFor={`price-${index}`}>Price</Label>
+                    <Input
+                      id={`price-${index}`}
+                      placeholder="Price"
+                      type="number"
+                      value={product.price ?? 0}
+                      onChange={(e) => handleProductChange(index, 'price', e.target.value)}
+                    />
                   </div>
 
-                  <div className="flex gap-2">
-                    <div className="flex-1">
-                      <Label htmlFor={`price-${index}`}>Price</Label>
-                      <Input
-                        id={`price-${index}`}
-                        placeholder="Price"
-                        type="number"
-                        value={product.price ?? 0}
-                        onChange={(e) => handleProductChange(index, 'price', e.target.value)}
-                      />
-                    </div>
-
-                    <div className="flex-1">
-                      <Label htmlFor={`qty-${index}`}>Qty</Label>
-                      <Input
-                        id={`qty-${index}`}
-                        placeholder="Qty"
-                        type="number"
-                        value={product.qty ?? 1}
-                        onChange={(e) => handleProductChange(index, 'qty', e.target.value)}
-                      />
-                    </div>
+                  <div className="flex-1">
+                    <Label htmlFor={`qty-${index}`}>Qty</Label>
+                    <Input
+                      id={`qty-${index}`}
+                      placeholder="Qty"
+                      type="number"
+                      value={product.qty ?? 1}
+                      onChange={(e) => handleProductChange(index, 'qty', e.target.value)}
+                    />
                   </div>
                 </div>
-              ))}
-
-              <div className="*:not-first:mt-2">
-                <Label htmlFor={'price'}>Price</Label>
-                <Input id={"price"} name={"price"} value={orderDetails["price"] ?? products?.reduce((acc, product) => acc + (Number(product.price || 0) * Number(product.qty || 1)), 0)} onChange={handleOrderChange} type={'number'} required />
-              </div>
-              <Button type="button" disabled={products.some((product) => !product.name?.trim()) || allProducts?.productList?.length == products?.length} onClick={handleAddProduct} className="mt-2">
-                Add Product
-              </Button>
-            </div>
-
-          </div> : step == 2 ? <div className="space-y-4">
-            {[
-              { label: 'Phone', name: 'phone', type: 'tel' },
-              { label: 'Name', name: 'name', type: 'text' },
-              { label: 'Address', name: 'address', type: 'textarea' },
-            ].map(({ label, name, type }) => (
-              <div key={label} className="*:not-first:mt-2">
-                <Label htmlFor={name}>{label}</Label>
-                {type === "textarea" ? (
-                  <Textarea id={name} name={name} value={orderDetails[name]} onChange={handleOrderChange} />
-                ) : (
-                  <Input id={name} name={name} value={orderDetails[name]} onChange={handleOrderChange} type={type} required />
-                )}
               </div>
             ))}
-            {/* Delivery Partner */}
-            <div>
-              <Label>Delivery Partner</Label>
-              <Select
-                value={deliveryPartner}
-                onChange={(e) => setDeliveryPartner(e.target.value)}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select Partner" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="DHL">DHL</SelectItem>
-                  <SelectItem value="FedEx">FedEx</SelectItem>
-                  <SelectItem value="UPS">UPS</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div> : ''}
 
-          {step == 1 ? <Button className="cursor-pointer w-full" disabled={products.some((product) => !product.name?.trim())} onClick={() => setStep(2)}>
-            Next
-          </Button> : step == 2 ?
-            <div className="flex space-x-2"> <Button className="cursor-pointer w-full" onClick={() => setStep(1)} >
+            <div className="*:not-first:mt-2">
+              <Label htmlFor={'price'}>Price</Label>
+              <Input id={"price"} name={"price"} value={orderDetails["price"] ?? products?.reduce((acc, product) => acc + (Number(product.price || 0) * Number(product.qty || 1)), 0)} onChange={handleOrderChange} type={'number'} required />
+            </div>
+
+          </div>
+
+        </div> : step == 2 ? <div className="space-y-4">
+          {
+            [
+              { label: 'Phone', name: 'phone', type: 'tel' },
+              { label: 'Name', name: 'name', type: 'text' },
+            ]?.map(({ label, name, type }) => (
+              <div key={label} className="*:not-first:mt-2">
+                <Label htmlFor={name}>{label}</Label>
+                <Input id={name} name={name} value={orderDetails[name]} onChange={handleOrderChange} type={type} required />
+              </div>
+            ))
+          }
+        </div> : step == 3 ?
+          <div className="space-y-4">
+            <div className="*:not-first:mt-2">
+              <Label htmlFor={"address"}>Address</Label>
+              <Textarea id={"address"} name={"address"} value={orderDetails["address"]} onChange={handleOrderChange} />
+            </div>
+
+            <Select
+                    name={"deliveryPartner"}
+                    value={orderDetails["deliveryPartner"]}
+                    onValueChange={(value) => handleOrderChange({ target: { name: "deliveryPartner", value } })}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select Partner" />
+                    </SelectTrigger>
+                    <SelectContent>
+                    
+                      {["Delhivery", "I-Think","Indian-Post","Area-Delivery"]?.map((option, idx) => (
+                        <SelectItem key={idx} value={option}>
+                          {option}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+          </div>
+          : ''}
+
+        {step == 1 ? (
+          <div className="flex space-x-2 mt-2">
+            <Button
+              type="button"
+              className="cursor-pointer w-full"
+              disabled={loading || !products.length || products.some((product) => !product.name?.trim())}
+              onClick={handleAddProduct}
+            >
+              Add Product
+            </Button>
+            <Button
+              type="button"
+              className="cursor-pointer w-full"
+              disabled={loading || !products.length || products.some((product) => !product.name?.trim())}
+              onClick={() => setStep(2)}
+            >
+              Next
+            </Button>
+          </div>
+        ) : step == 2 ? (
+          <div className="flex space-x-2">
+            <Button
+              type="button"
+              className="cursor-pointer w-full"
+              onClick={() => setStep(1)}
+            >
               Back
             </Button>
-              <Button type="submit" className="cursor-pointer w-full" onClick={handleSubmit} disabled={loading}>
-                {loading ? (
-                  <div className="h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                ) : (
-                  item ? "Update" : "Save"
-                )}
-              </Button>
-            </div> : ""}
-        </form>
+            <Button
+              type="button"
+              className="cursor-pointer w-full"
+              disabled={loading || !orderDetails?.name || !orderDetails?.phone}
+              onClick={() => setStep(3)}
+            >
+              Next
+            </Button>
+          </div>
+        ) : step == 3 ? (
+          <div className="flex space-x-2">
+            <Button
+              type="button"
+              className="cursor-pointer w-full"
+              onClick={() => setStep(2)}
+            >
+              Back
+            </Button>
+            <Button
+              className="cursor-pointer w-full"
+              onClick={(e) => handleSubmit(e)}
+              disabled={loading}
+            >
+              {loading ? (
+                <div className="flex justify-center items-center w-full">
+                  <div className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                </div>
+              ) : (
+                item ? "Update" : "Save"
+              )}
+            </Button>
+          </div>
+        ) : ""}
+
         <DialogClose ref={dialogCloseRef} />
       </DialogContent>
     </Dialog>
