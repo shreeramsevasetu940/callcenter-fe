@@ -18,6 +18,8 @@ export default function OrderList() {
   const [data, setData] = useState([]);
   const [searchkey, setSearchkey] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [allProducts, setAllProducts] = useState(null);
+
   const { data: session } = useSession();
   const authToken = session?.user?.token
   const url =
@@ -31,6 +33,14 @@ export default function OrderList() {
     const refechData=()=>{
       integrateGetApi(url, setData, authToken);
     }
+
+    useEffect(() => {
+      if (authToken) {
+        const url = process.env.NEXT_PUBLIC_BASEURL +
+          'product?limit=999999'
+        integrateGetApi(url, setAllProducts, authToken)
+      }
+    }, [authToken])
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -58,7 +68,7 @@ export default function OrderList() {
           onChange={handleSearch}
           className="w-full md:w-1/2"
         />
-        <Order refechData={refechData} Children={<Button size="sm" className="h-7 gap-1 cursor-pointer">
+        <Order allProducts={allProducts} refechData={refechData} Children={<Button size="sm" className="h-7 gap-1 cursor-pointer">
           <PlusCircle className="h-3.5 w-3.5" />
           <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
             Add Orders
@@ -72,7 +82,9 @@ export default function OrderList() {
             {[
               { key: "name", label: "Name" },
               { key: "phone", label: "Phone" },
-              { key: "address", label: "Address" },
+              { key: "amount", label: "Amount" },
+              { key: "status", label: "Status" },
+              { key: "deliveryPartner", label: "DeliveryPartner" },
               { key: "action", label: "Action" },
             ].map((column) => (
               <TableHead key={column.key}>
@@ -87,8 +99,10 @@ export default function OrderList() {
               <TableRow key={item._id}>
                 <TableCell>{item.name}</TableCell>
                 <TableCell>{item.phone}</TableCell>
-                <TableCell>{item.address}</TableCell>
-                <TableCell><Order refechData={refechData} item={item} Children={<Button variant={'outline'}>Edit</Button>}/></TableCell>
+                <TableCell>{item.price}</TableCell>
+                <TableCell>{item.orderStatus}</TableCell>
+                <TableCell>{item.deliveryPartner}</TableCell>
+                <TableCell><Order allProducts={allProducts} refechData={refechData} item={item} Children={<Button variant={'outline'}>Edit</Button>}/></TableCell>
               </TableRow>
             ))
           ) : (

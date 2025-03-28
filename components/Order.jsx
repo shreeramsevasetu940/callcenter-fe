@@ -18,25 +18,24 @@ import axios from "axios";
 import { showToast } from "./ToastComponent";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { integrateGetApi } from "@/utils/api";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 
-export default function Order({ Children, item = null, refechData = () => { } }) {
+export default function Order({ Children, allProducts = {}, item = null, refechData = () => { } }) {
   const [loading, setLoading] = useState(false);
   const dialogCloseRef = useRef(null);
-  const [orderDetails, setOrderDetails] = useState({ phone: '', name: '', address: '', price: '',deliveryPartner:'' });
+  const [orderDetails, setOrderDetails] = useState({ phone: '', name: '', address: '', price: '', deliveryPartner: '' });
   const [products, setProducts] = useState([{ name: '', id: '', qty: 1 }]);
   const [step, setStep] = useState(1);
-  const [allProducts, setAllProducts] = useState(null);
+  const [addresses, setAddresses] = useState(null);
   const { data: session } = useSession();
   const authToken = session?.user?.token;
-
   useEffect(() => {
-    if (authToken) {
+    if (orderDetails?.phone?.length == 10 && step == 3) {
       const url = process.env.NEXT_PUBLIC_BASEURL +
-        'product?limit=999999'
-      integrateGetApi(url, setAllProducts, authToken)
+        'address?limit=999999&search=' + orderDetails?.phone
+      integrateGetApi(url, setAddresses, authToken)
     }
-  }, [authToken])
-
+  }, [orderDetails?.phone, step])
 
   useEffect(() => {
     if (item) {
@@ -45,16 +44,17 @@ export default function Order({ Children, item = null, refechData = () => { } })
         name: item?.name,
         address: item?.address,
         price: item?.price || '',
-        deliveryPartner:item?.deliveryPartner||''
+        deliveryPartner: item?.deliveryPartner || ''
       });
-      setProducts(item?.products ?? [{ name: '', id: '', qty: 1 }]);
+      setProducts(item?.products ?? [{ name: '', id: '', price: 0, qty: 1 }]);
     }
   }, [item]);
 
   const handleClear = () => {
     setStep(1);
-    setOrderDetails({ phone: '', name: '', address: '', price: '',deliveryPartner:'' });
-    setProducts([{ name: '', id: '', qty: 1 }]);
+    setOrderDetails({ phone: '', name: '', address: '', price: '', deliveryPartner: '' });
+    setProducts([{ name: '', id: '', price: 0, qty: 1 }]);
+    setAddresses(null);
   };
 
   const handleOrderChange = (e) => {
@@ -143,6 +143,7 @@ export default function Order({ Children, item = null, refechData = () => { } })
                     onValueChange={(value) => {
                       const selectedProduct = allProducts?.productList?.find((p) => p.name === value);
                       handleProductChange(index, 'name', value);
+                      handleProductChange(index, 'id', selectedProduct?._id);
                       handleProductChange(index, 'price', selectedProduct?.price || 0);
                     }}
                   >
@@ -209,26 +210,46 @@ export default function Order({ Children, item = null, refechData = () => { } })
           <div className="space-y-4">
             <div className="*:not-first:mt-2">
               <Label htmlFor={"address"}>Address</Label>
-              <Textarea id={"address"} name={"address"} value={orderDetails["address"]} onChange={handleOrderChange} />
-            </div>
+              {item&&<Input value={orderDetails?.address?.address}/>}
+              {addresses?.addressList?.length > 0 ?
 
+                <Select
+                  value={orderDetails?.address || ''}
+                  onValueChange={(value) => {
+                    setOrderDetails((prev) => ({ ...prev, address: value }));
+                  }}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select Address" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {addresses?.addressList?.map((address, idx) => (
+                      <SelectItem key={idx} value={address?._id || ''}>
+                        {address?.address || 'Unknown Address'}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                : "No address found first add address"}
+            </div>
+          
             <Select
-                    name={"deliveryPartner"}
-                    value={orderDetails["deliveryPartner"]}
-                    onValueChange={(value) => handleOrderChange({ target: { name: "deliveryPartner", value } })}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select Partner" />
-                    </SelectTrigger>
-                    <SelectContent>
-                    
-                      {["Delhivery", "I-Think","Indian-Post","Area-Delivery"]?.map((option, idx) => (
-                        <SelectItem key={idx} value={option}>
-                          {option}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+              name={"deliveryPartner"}
+              value={orderDetails["deliveryPartner"]}
+              onValueChange={(value) => handleOrderChange({ target: { name: "deliveryPartner", value } })}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select Partner" />
+              </SelectTrigger>
+              <SelectContent>
+
+                {["Delhivery", "I-Think", "Indian-Post", "Area-Delivery"]?.map((option, idx) => (
+                  <SelectItem key={idx} value={option}>
+                    {option}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           : ''}
 
