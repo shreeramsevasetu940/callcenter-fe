@@ -14,6 +14,7 @@ import {PlusCircle, StepBack, StepForward } from "lucide-react";
 import { integrateGetApi } from "@/utils/api";
 import { useSession } from "next-auth/react";
 import Order from "@/components/Order";
+import { Badge } from "@/components/ui/badge";
 export default function OrderList() {
   const [data, setData] = useState([]);
   const [searchkey, setSearchkey] = useState("");
@@ -100,7 +101,7 @@ export default function OrderList() {
                 <TableCell>{item.name}</TableCell>
                 <TableCell>{item.phone}</TableCell>
                 <TableCell>{item.price}</TableCell>
-                <TableCell>{item.orderStatus}</TableCell>
+                <TableCell><Badge>{item.orderStatus}</Badge></TableCell>
                 <TableCell>{item.deliveryPartner}</TableCell>
                 <TableCell><Order allProducts={allProducts} refechData={refechData} item={item} Children={<Button variant={'outline'}>Edit</Button>}/></TableCell>
               </TableRow>

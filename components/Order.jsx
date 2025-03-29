@@ -246,14 +246,12 @@ export default function Order({ Children, allProducts = {}, item = null, refechD
             <div className="mx-auto my-2 p-2 text-center">
                 <p className="text-gray-500">No address found</p>
                 <Address refechData={refechAddresses} Children={<Button>Add</Button>} phone={orderDetails?.phone}/>
-                
             </div>
         </div>
-                
                 }
                 </div>}
             </div>
-          
+            <Label htmlFor={"deliveryPartner"}>Delivery Partner</Label>
             <Select
               name={"deliveryPartner"}
               value={orderDetails["deliveryPartner"]}
