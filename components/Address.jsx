@@ -83,11 +83,11 @@ const PostOfficeTable = ({ data, selectedData, setSelectedData }) => {
 };
 
 
-export default function Address({ Children, item = null, refechData = () => { } }) {
+export default function Address({ Children, item = null, refechData = () => { },phone=""}) {
   const [loading, setLoading] = useState(false);
   const dialogCloseRef = useRef(null);
   const [indianPostDetails, setIndianPostDetails] = useState(null);
-  const [addressDetails, setAddressDetails] = useState({ pincode: '', village: '', district: '', taluka: '', state: '', phone: '', landmark: '', address: '' });
+  const [addressDetails, setAddressDetails] = useState({ pincode: '', village: '', district: '', taluka: '', state: '', phone:phone??'', landmark: '', address: '' });
   const { data: session } = useSession();
   const authToken = session?.user?.token
   useEffect(() => {
@@ -188,7 +188,7 @@ export default function Address({ Children, item = null, refechData = () => { } 
               { label: 'Taluka', name: 'taluka', width: 'lg:w-1/2', disabled: true },
               { label: 'District', name: 'district', width: 'lg:w-1/2', disabled: true },
               { label: 'State', name: 'state', width: 'lg:w-1/2', disabled: true }, // State with button
-              { label: 'Phone', name: 'phone', width: 'w-full' },
+              { label: 'Phone', name: 'phone', width: 'w-full',disabled:phone?true:false },
               { label: 'Landmark', name: 'landmark', width: 'w-full' },
               { label: 'Address', name: 'address', width: 'w-full' }
             ].map(({ label, name, width, disabled = false }) => (
@@ -210,6 +210,7 @@ export default function Address({ Children, item = null, refechData = () => { } 
                       id={name}
                       name={name}
                       value={addressDetails[name]}
+                      disabled={disabled}
                       onChange={handleAddressChange}
                       placeholder="Type your address here."
                     />

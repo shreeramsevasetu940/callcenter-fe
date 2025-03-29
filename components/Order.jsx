@@ -12,13 +12,12 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useEffect, useRef, useState } from 'react';
-import { Textarea } from "./ui/textarea";
 import { useSession } from "next-auth/react";
 import axios from "axios";
 import { showToast } from "./ToastComponent";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { integrateGetApi } from "@/utils/api";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import Address from "./Address";
 
 export default function Order({ Children, allProducts = {}, item = null, refechData = () => { } }) {
   const [loading, setLoading] = useState(false);
@@ -27,7 +26,9 @@ export default function Order({ Children, allProducts = {}, item = null, refechD
   const [products, setProducts] = useState([{ name: '', id: '', qty: 1 }]);
   const [step, setStep] = useState(1);
   const [addresses, setAddresses] = useState(null);
+  const [changeAddress, setChangeAddress] = useState(false);
   const { data: session } = useSession();
+
   const authToken = session?.user?.token;
   useEffect(() => {
     if (orderDetails?.phone?.length == 10 && step == 3) {
@@ -36,6 +37,14 @@ export default function Order({ Children, allProducts = {}, item = null, refechD
       integrateGetApi(url, setAddresses, authToken)
     }
   }, [orderDetails?.phone, step])
+
+  const refechAddresses =()=>{
+    if (orderDetails?.phone?.length == 10 && step == 3) {
+      const url = process.env.NEXT_PUBLIC_BASEURL +
+        'address?limit=999999&search=' + orderDetails?.phone
+      integrateGetApi(url, setAddresses, authToken)
+    }
+  }
 
   useEffect(() => {
     if (item) {
@@ -210,9 +219,11 @@ export default function Order({ Children, allProducts = {}, item = null, refechD
           <div className="space-y-4">
             <div className="*:not-first:mt-2">
               <Label htmlFor={"address"}>Address</Label>
-              {item&&<Input value={orderDetails?.address?.address}/>}
+              {orderDetails?.phone==item?.phone&&(!changeAddress&&item)&&<Input disabled value={orderDetails?.address?.address}/>}
+              {orderDetails?.phone==item?.phone&&(!changeAddress&&item)&&<Button onClick={()=>setChangeAddress(true)}>Change</Button>}
+                {(changeAddress||!item||orderDetails?.phone!==item?.phone)&&
+                <div>
               {addresses?.addressList?.length > 0 ?
-
                 <Select
                   value={orderDetails?.address || ''}
                   onValueChange={(value) => {
@@ -230,7 +241,17 @@ export default function Order({ Children, allProducts = {}, item = null, refechD
                     ))}
                   </SelectContent>
                 </Select>
-                : "No address found first add address"}
+                : 
+                <div className="flex items-center justify-center">
+            <div className="mx-auto my-2 p-2 text-center">
+                <p className="text-gray-500">No address found</p>
+                <Address refechData={refechAddresses} Children={<Button>Add</Button>} phone={orderDetails?.phone}/>
+                
+            </div>
+        </div>
+                
+                }
+                </div>}
             </div>
           
             <Select
