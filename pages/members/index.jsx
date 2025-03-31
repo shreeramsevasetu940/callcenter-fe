@@ -20,6 +20,7 @@ import Link from "next/link";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import axios from "axios";
 import { showToast } from "@/components/ToastComponent";
+import { requireAuthentication } from "@/utils/utils";
 export default function MemberList() {
   const [activeTab, setActiveTab] = useState('all');
   const [data, setData] = useState([]);
@@ -185,4 +186,12 @@ export default function MemberList() {
   </Tabs>                
     </div>
   );
+}
+
+export async function getServerSideProps(context) {
+  return requireAuthentication(context, ({ session }) => {
+    return {
+      props: { session },
+    };
+  });
 }
