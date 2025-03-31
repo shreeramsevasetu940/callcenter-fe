@@ -1,13 +1,14 @@
 import MainBar from "@/components/MainBar";
 import ToastComponent from "@/components/ToastComponent";
 import "@/styles/globals.css";
+import { useAuthCheck } from "@/utils/authCheck";
 import { SessionProvider } from "next-auth/react";
 import Head from "next/head";
 import { useRouter } from "next/router";
 
 export default function App({ Component, pageProps: { session, ...pageProps } }) {
   const router = useRouter();
-
+  useAuthCheck();
   // Define pages that should not have a sidebar
   const excludeSideBar = [
     "/sign-in",
