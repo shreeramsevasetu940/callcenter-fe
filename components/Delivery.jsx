@@ -23,8 +23,7 @@ import moment from "moment/moment";
 export default function Delivery({ Children, allProducts = {}, item = null, refechData = () => { } }) {
   const [loading, setLoading] = useState(false);
   const dialogCloseRef = useRef(null);
-  const [orderDetails, setOrderDetails] = useState({ phone: '', name: '', address: '', price: '', deliveryPartner: '' });
-  const [deliveryDetails, setDeliveryDetails] = useState({ trackingId: '', trackingLink: '', rtoDate: '', deliveredDate: '', feedbackCallDate: '' })
+  const [orderDetails, setOrderDetails] = useState({ phone: '', name: '', address: '', price: '', deliveryPartner: '', trackingId: '', rtoDate: '', deliveredDate: '', feedbackCallDate: '' });
   const [remarks, setRemarks] = useState([{ reason: '' }]);
   const [products, setProducts] = useState([{ name: '', id: '', qty: 1 }]);
   const [step, setStep] = useState(1);
@@ -56,10 +55,13 @@ export default function Delivery({ Children, allProducts = {}, item = null, refe
         name: item?.name,
         address: item?.address,
         price: item?.price || '',
-        deliveryPartner: item?.deliveryPartner || ''
+        deliveryPartner: item?.deliveryPartner || '',
+        trackingId: item?.trackingId||'',
+        rtoDate: item?.rtoDate||'',
+        deliveredDate: item?.deliveredDate||'',
+        feedbackCallDate: item?.feedbackCallDate||''
       });
       setProducts(item?.products ?? [{ name: '', id: '', price: 0, qty: 1 }]);
-      setDeliveryDetails({ trackingId: item?.trackingId, trackingLink: item?.trackingLink, rtoDate: item?.rtoDate, deliveredDate: item?.deliveredDate, feedbackCallDate: item?.feedbackCallDate })
       setRemarks(item?.remark ?? [{ reason: '' }])
     }
   }, [item]);
@@ -73,16 +75,18 @@ export default function Delivery({ Children, allProducts = {}, item = null, refe
         name: item?.name,
         address: item?.address,
         price: item?.price || '',
-        deliveryPartner: item?.deliveryPartner || ''
+        deliveryPartner: item?.deliveryPartner || '',
+        trackingId: item?.trackingId||'',
+        rtoDate: item?.rtoDate||'',
+        deliveredDate: item?.deliveredDate||'',
+        feedbackCallDate: item?.feedbackCallDate||''
       });
       setProducts(item?.products ?? [{ name: '', id: '', price: 0, qty: 1 }]);
-      setDeliveryDetails({ trackingId: item?.trackingId, trackingLink: item?.trackingLink, rtoDate: item?.rtoDate, deliveredDate: item?.deliveredDate, feedbackCallDate: item?.feedbackCallDate })
       setRemarks(item?.remark ?? [{ reason: '' }])
     }
     else {
-      setOrderDetails({ phone: '', name: '', address: '', price: '', deliveryPartner: '' });
+      setOrderDetails({ phone: '', name: '', address: '', price: '', deliveryPartner: '', trackingId: '', rtoDate: '', deliveredDate: '', feedbackCallDate: '' });
       setProducts([{ name: '', id: '', price: 0, qty: 1 }]);
-      setDeliveryDetails({ trackingId: '', trackingLink: '', rtoDate: '', deliveredDate: '', feedbackCallDate: '' })
       setRemarks([{ reason: '' }])
     }
   };
@@ -284,6 +288,8 @@ export default function Delivery({ Children, allProducts = {}, item = null, refe
                   }
                 </div>}
             </div>
+          </div>
+          : step == 4 ? <div className="space-y-4">
             <Label htmlFor={"deliveryPartner"}>Delivery Partner</Label>
             <Select
               name={"deliveryPartner"}
@@ -295,30 +301,27 @@ export default function Delivery({ Children, allProducts = {}, item = null, refe
               </SelectTrigger>
               <SelectContent>
 
-                {["Delhivery", "I-Think", "Indian-Post", "Area-Delivery"]?.map((option, idx) => (
+                {["Delhivery", "Indian-Post"]?.map((option, idx) => (
                   <SelectItem key={idx} value={option}>
                     {option}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
-          </div>
-          : step == 4 ? <div className="space-y-4">
             {
               [
-                { label: 'TrackingId', name: 'trackingId', type: 'tel' },
-                { label: 'TrackingLink', name: 'trackingLink', type: 'text' },
+                { label: 'TrackingId', name: 'trackingId', type: 'text' },
                 { label: 'RtoDate', name: 'rtoDate', type: 'text' },
                 { label: 'DeliveredDate', name: 'deliveredDate', type: 'text' },
                 { label: 'FeedbackCallDate', name: 'feedbackCallDate', type: 'text' }
-              ]?.map(({ label, name, type }) => (
+              ]?.filter(({ name }) => name === 'trackingId' || orderDetails[name])?.map(({ label, name, type }) => (
                 <div key={label} className="*:not-first:mt-2">
                   <Label htmlFor={name}>{label}</Label>
-                  <Input id={name} name={name} value={orderDetails[name]} onChange={handleOrderChange} type={type} required />
+                  <Input id={name} name={name} value={orderDetails[name]} disabled={name !== 'trackingId'} onChange={handleOrderChange} type={type} required />
                 </div>
               ))
             }
-            <div className="*:not-first:mt-2">
+            {orderDetails?.trackingId ? <div className="*:not-first:mt-2">
               <Label>Remarks</Label>
               {remarks.map((remark, index) => (
                 <>
@@ -355,8 +358,8 @@ export default function Delivery({ Children, allProducts = {}, item = null, refe
               >
                 Add Remark
               </Button>
-            </div>
-          </div> : ''}
+            </div> : ''}
+            </div> : ''}
 
         {step == 1 ? (
           <div className="flex space-x-2 mt-2">
