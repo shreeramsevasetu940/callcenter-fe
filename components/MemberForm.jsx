@@ -43,7 +43,7 @@ const MemberForm = ({ staffId = null }) => {
 
   useEffect(() => {
     if (staffId && authToken) {
-      const url = process.env.NEXT_PUBLIC_API_SERVICE_BACKEND + 'staff/' + staffId
+      const url = process.env.NEXT_PUBLIC_BASEURL + 'staff/' + staffId
       integrateGetApi(url, setExistingData, authToken);
     }
   }, [staffId])
@@ -154,7 +154,7 @@ const handleSubmit = async (e) => {
 
   try {
     const response = await axios.post(
-      `${process.env.NEXT_PUBLIC_API_SERVICE_BACKEND}staff`,
+      `${process.env.NEXT_PUBLIC_BASEURL}staff`,
       formData,
       { headers: { 'Content-Type': 'multipart/form-data' } }
     );
@@ -209,7 +209,7 @@ const handleUpdate = async (e) => {
 
   try {
     const response = await axios.put(
-      `${process.env.NEXT_PUBLIC_API_SERVICE_BACKEND}staff/${staffId}`,
+      `${process.env.NEXT_PUBLIC_BASEURL}staff/${staffId}`,
       formData,
       { headers: { 'Content-Type': 'multipart/form-data' } }
     );
@@ -373,7 +373,7 @@ const handleUpdate = async (e) => {
         ))}
         <div className="flex justify-between">
 
-          <Button className={'cursor-pointer'} onClick={() => { router.back() }}>Cancel</Button>
+          <Button className={'cursor-pointer'} type="button" onClick={() => { router.back()}}>Cancel</Button>
           <Button
             type="submit"
             className={'cursor-pointer'}

@@ -20,10 +20,12 @@ import { integrateGetApi } from "@/utils/api";
 import Address from "./Address";
 import moment from "moment/moment";
 
-export default function Order({ Children, allProducts = {}, item = null, refechData = () => { } }) {
+export default function Delivery({ Children, allProducts = {}, item = null, refechData = () => { } }) {
   const [loading, setLoading] = useState(false);
   const dialogCloseRef = useRef(null);
-  const [orderDetails, setOrderDetails] = useState({ phone: '', name: '', address: '', price: ''});
+  const [orderDetails, setOrderDetails] = useState({ phone: '', name: '', address: '', price: '', deliveryPartner: '' });
+  const [deliveryDetails, setDeliveryDetails] = useState({ trackingId: '', trackingLink: '', rtoDate: '', deliveredDate: '', feedbackCallDate: '' })
+  const [remarks, setRemarks] = useState([{ reason: '' }]);
   const [products, setProducts] = useState([{ name: '', id: '', qty: 1 }]);
   const [step, setStep] = useState(1);
   const [addresses, setAddresses] = useState(null);
@@ -54,8 +56,11 @@ export default function Order({ Children, allProducts = {}, item = null, refechD
         name: item?.name,
         address: item?.address,
         price: item?.price || '',
+        deliveryPartner: item?.deliveryPartner || ''
       });
       setProducts(item?.products ?? [{ name: '', id: '', price: 0, qty: 1 }]);
+      setDeliveryDetails({ trackingId: item?.trackingId, trackingLink: item?.trackingLink, rtoDate: item?.rtoDate, deliveredDate: item?.deliveredDate, feedbackCallDate: item?.feedbackCallDate })
+      setRemarks(item?.remark ?? [{ reason: '' }])
     }
   }, [item]);
 
@@ -68,13 +73,28 @@ export default function Order({ Children, allProducts = {}, item = null, refechD
         name: item?.name,
         address: item?.address,
         price: item?.price || '',
+        deliveryPartner: item?.deliveryPartner || ''
       });
       setProducts(item?.products ?? [{ name: '', id: '', price: 0, qty: 1 }]);
+      setDeliveryDetails({ trackingId: item?.trackingId, trackingLink: item?.trackingLink, rtoDate: item?.rtoDate, deliveredDate: item?.deliveredDate, feedbackCallDate: item?.feedbackCallDate })
+      setRemarks(item?.remark ?? [{ reason: '' }])
     }
     else {
-      setOrderDetails({ phone: '', name: '', address: '', price: ''});
+      setOrderDetails({ phone: '', name: '', address: '', price: '', deliveryPartner: '' });
       setProducts([{ name: '', id: '', price: 0, qty: 1 }]);
+      setDeliveryDetails({ trackingId: '', trackingLink: '', rtoDate: '', deliveredDate: '', feedbackCallDate: '' })
+      setRemarks([{ reason: '' }])
     }
+  };
+
+  const handleAddRemark = () => {
+    setRemarks([...remarks, { reason: '' }]);
+  };
+
+  const handleRemarkChange = (index, value) => {
+    const updatedRemarks = [...remarks];
+    updatedRemarks[index].reason = value;
+    setRemarks(updatedRemarks);
   };
 
   const handleOrderChange = (e) => {
@@ -142,6 +162,8 @@ export default function Order({ Children, allProducts = {}, item = null, refechD
       setLoading(false);
     }
   };
+
+  const isAddRemarkDisabled = remarks.some((remark) => !remark.reason.trim());
 
   return (
     <Dialog onOpenChange={(isOpen) => !isOpen && handleClear()}>
@@ -262,8 +284,79 @@ export default function Order({ Children, allProducts = {}, item = null, refechD
                   }
                 </div>}
             </div>
+            <Label htmlFor={"deliveryPartner"}>Delivery Partner</Label>
+            <Select
+              name={"deliveryPartner"}
+              value={orderDetails["deliveryPartner"]}
+              onValueChange={(value) => handleOrderChange({ target: { name: "deliveryPartner", value } })}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select Partner" />
+              </SelectTrigger>
+              <SelectContent>
+
+                {["Delhivery", "I-Think", "Indian-Post", "Area-Delivery"]?.map((option, idx) => (
+                  <SelectItem key={idx} value={option}>
+                    {option}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
-          : ''}
+          : step == 4 ? <div className="space-y-4">
+            {
+              [
+                { label: 'TrackingId', name: 'trackingId', type: 'tel' },
+                { label: 'TrackingLink', name: 'trackingLink', type: 'text' },
+                { label: 'RtoDate', name: 'rtoDate', type: 'text' },
+                { label: 'DeliveredDate', name: 'deliveredDate', type: 'text' },
+                { label: 'FeedbackCallDate', name: 'feedbackCallDate', type: 'text' }
+              ]?.map(({ label, name, type }) => (
+                <div key={label} className="*:not-first:mt-2">
+                  <Label htmlFor={name}>{label}</Label>
+                  <Input id={name} name={name} value={orderDetails[name]} onChange={handleOrderChange} type={type} required />
+                </div>
+              ))
+            }
+            <div className="*:not-first:mt-2">
+              <Label>Remarks</Label>
+              {remarks.map((remark, index) => (
+                <>
+                  <div
+                    key={index}
+                    className={`flex items-center gap-2`}
+                  >
+                    <div
+                      className={`p-2 rounded-lg shadow-md w-full text-sm ${remark?.date && 'bg-gray-200'} text-black`}
+                    >
+                      <Input
+                        type="text"
+                        value={remark.reason}
+                        disabled={remark.date}
+                        onChange={(e) => handleRemarkChange(index, e.target.value)}
+                        required
+                        className="bg-transparent border-none outline-none w-full"
+                      />
+                      <hr />
+                      <span
+                        className={`block text-xs mt-1 text-right text-black/50`}
+                      >
+                        {moment(remark?.date).format('lll')}
+                      </span>
+                    </div>
+                  </div>
+                </>
+              ))}
+              <Button
+                type="button"
+                className="mx-auto "
+                onClick={handleAddRemark}
+                disabled={isAddRemarkDisabled}
+              >
+                Add Remark
+              </Button>
+            </div>
+          </div> : ''}
 
         {step == 1 ? (
           <div className="flex space-x-2 mt-2">
@@ -312,6 +405,24 @@ export default function Order({ Children, allProducts = {}, item = null, refechD
               Back
             </Button>
             <Button
+              type="button"
+              className="cursor-pointer w-full"
+              disabled={loading || !orderDetails?.name || !orderDetails?.phone}
+              onClick={() => setStep(4)}
+            >
+              Next
+            </Button>
+          </div>
+        ) : step == 4 ?
+          <div className="flex space-x-2">
+            <Button
+              type="button"
+              className="cursor-pointer w-full"
+              onClick={() => setStep(3)}
+            >
+              Back
+            </Button>
+            <Button
               className="cursor-pointer w-full"
               onClick={(e) => handleSubmit(e)}
               disabled={loading}
@@ -325,7 +436,7 @@ export default function Order({ Children, allProducts = {}, item = null, refechD
               )}
             </Button>
           </div>
-        ) : ""}
+          : ""}
 
         <DialogClose ref={dialogCloseRef} />
       </DialogContent>

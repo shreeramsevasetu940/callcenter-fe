@@ -55,7 +55,7 @@ export default function MemberList() {
 
  const handleStatusUpdate=async(id,status)=>{
       try {
-        const response = await axios.patch(`${process.env.NEXT_PUBLIC_API_SERVICE_BACKEND}staff/${id}/${status}`,{}, {
+        const response = await axios.patch(`${process.env.NEXT_PUBLIC_BASEURL}staff/${id}/${status}`,{}, {
           headers: {
             'Content-Type': 'application/json',
           },

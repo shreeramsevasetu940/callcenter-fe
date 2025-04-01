@@ -14,13 +14,13 @@ import {
   SidebarMenuSubItem,
   SidebarRail,
 } from "@/components/ui/sidebar"
+import { useSession } from "next-auth/react";
+import Link from "next/link";
 
 // This is sample data.
-const data = {
-  navMain: [
-    {
+const navMain ={
+    admin:{
       title: "Admin",
-      url: "#",
       items: [
         {
           title: "Members",
@@ -42,11 +42,14 @@ const data = {
           title: "Orders",
           url: "/orders",
         },
+        {
+          title: "Delivery",
+          url: "/delivery",
+        },
       ],
     },
-    {
+    manager:{
       title: "Branch Manager",
-      url: "#",
       items: [
         {
           title: "Leads",
@@ -58,23 +61,25 @@ const data = {
         },
       ],
     },
-    {
+    employee:{
       title: "Staff",
-      url: "#",
       items: [
         {
           title: "Leads",
           url: "/leads",
         },
         {
-          title: "Members",
-          url: "/members",
+          title: "Addresses",
+          url: "/addresses",
+        },
+        {
+          title: "Orders",
+          url: "/orders",
         },
       ],
     },
-    {
+    couriermanager:{
       title: "Courier Manager",
-      url: "#",
       items: [
         {
           title: "Leads",
@@ -86,9 +91,8 @@ const data = {
         },
       ],
     },
-    {
-      title: "Courier Boy",
-      url: "#",
+    teamleader:{
+      title: "Team Leader",
       items: [
         {
           title: "Leads",
@@ -99,29 +103,33 @@ const data = {
           url: "/members",
         },
       ],
-    },
-  ],
-}
+    }}
 
 export function AppSidebar({
   ...props
 }) {
+    const { data: session } = useSession();
+    const userRole=session?.user?.role
+    React.useEffect(() => {
+     console.log(userRole)
+    }, [])
+    
+
   return (
     (<Sidebar {...props}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <a href="#">
+              <Link href="/">
                 <div
                   className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
                   <GalleryVerticalEnd className="size-4" />
                 </div>
                 <div className="flex flex-col gap-0.5 leading-none">
-                  <span className="font-medium">Documentation</span>
-                  <span className="">v1.0.0</span>
+                  <span className="font-medium">Shree Ram Seva Setu</span>
                 </div>
-              </a>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
@@ -129,26 +137,22 @@ export function AppSidebar({
       <SidebarContent>
         <SidebarGroup>
           <SidebarMenu>
-            {data.navMain.map((item) => (
-              <SidebarMenuItem key={item.title}>
+              <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <a href={item.url} className="font-medium">
-                    {item.title}
-                  </a>
+                    {navMain?.[userRole]?.title}                  
                 </SidebarMenuButton>
-                {item.items?.length ? (
+                {navMain?.[userRole]?.items?.length ? (
                   <SidebarMenuSub>
-                    {item.items.map((item) => (
+                    {navMain?.[userRole]?.items?.map((item) => (
                       <SidebarMenuSubItem key={item.title}>
                         <SidebarMenuSubButton asChild isActive={item.isActive}>
-                          <a href={item.url}>{item.title}</a>
+                          <Link href={item.url}>{item.title}</Link>
                         </SidebarMenuSubButton>
                       </SidebarMenuSubItem>
                     ))}
                   </SidebarMenuSub>
                 ) : null}
               </SidebarMenuItem>
-            ))}
           </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>
