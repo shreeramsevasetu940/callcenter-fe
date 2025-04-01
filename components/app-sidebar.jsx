@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/sidebar"
 import { useSession } from "next-auth/react";
 import Link from "next/link";
+import { Button } from "./ui/button";
 
 // This is sample data.
 const navMain ={
@@ -139,7 +140,7 @@ export function AppSidebar({
           <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                    {navMain?.[userRole]?.title}                  
+                  <div className="font-semibold">{navMain?.[userRole]?.title}</div>              
                 </SidebarMenuButton>
                 {navMain?.[userRole]?.items?.length ? (
                   <SidebarMenuSub>
