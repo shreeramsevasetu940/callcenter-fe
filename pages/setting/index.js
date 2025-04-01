@@ -1,10 +1,12 @@
+import MemberForm from '@/components/MemberForm';
+import { useSession } from 'next-auth/react';
 import React from 'react'
 
 const Settings = () => {
+    const { data: session } = useSession();
+  
   return (
-    <div>
-      
-    </div>
+  <MemberForm staffId={session?.user?.user_id}/>
   )
 }
 

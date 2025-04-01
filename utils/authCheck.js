@@ -36,11 +36,11 @@ export const useAuthCheck = () => {
 
                 // Define role-based routes
                 const roleBasedRoutes = {
-                    admin: ["/","/leads","/addresses","/orders","/products","/delivery","/members"],
-                    employee: ["/","/leads","/addresses","/orders"],
-                    teamleader: ["/","/leads","/addresses","/orders","/delivery","/members"],
-                    couriermanager: ["/","/delivery"],
-                    manager: ["/","/leads","/addresses","/orders","/products","/delivery","/members"],
+                    admin: ["/","/setting","/leads","/addresses","/orders","/products","/delivery","/members"],
+                    employee: ["/","/setting","/leads","/addresses","/orders"],
+                    teamleader: ["/","/setting","/leads","/addresses","/orders","/delivery","/members"],
+                    couriermanager: ["/","/setting","/delivery"],
+                    manager: ["/","/setting","/leads","/addresses","/orders","/products","/delivery","/members"],
                 };
 
                 const publicRoutes = ["/sign-in","/unauthorized"];

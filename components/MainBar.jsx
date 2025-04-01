@@ -32,8 +32,7 @@ export default function MainBar({children}) {
           <DropdownMenuContent align="end">
             <Link href={'/myaccount'}> <DropdownMenuLabel>My Account</DropdownMenuLabel></Link>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>Settings</DropdownMenuItem>
-            <DropdownMenuItem>Support</DropdownMenuItem>
+            <DropdownMenuItem><Link href={'/setting'}>Settings</Link></DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem  onClick={() => signOut()}>Logout</DropdownMenuItem>
           </DropdownMenuContent>
