@@ -99,8 +99,9 @@ export default function Lead({ Children, item = null, refechData = () => { } }) 
         console.error('Failed to submit data:', response.statusText);
       }
     } catch (error) {
-      showToast.error('Failed to submit data:');
-      console.error('Error while submitting data:', error.message);
+      // message
+      showToast.error(error?.response?.data?.message||'Failed to submit data');
+      console.error('Error while submitting data:', error?.response?.data?.message);
     } finally {
       dialogCloseRef.current?.click();
       setLoading(false); // Stop loading
