@@ -18,7 +18,6 @@ import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { Button } from "./ui/button";
 
-// This is sample data.
 const navMain ={
     admin:{
       title: "Admin",
@@ -111,10 +110,6 @@ export function AppSidebar({
 }) {
     const { data: session } = useSession();
     const userRole=session?.user?.role
-    React.useEffect(() => {
-     console.log(userRole)
-    }, [])
-    
 
   return (
     (<Sidebar {...props}>

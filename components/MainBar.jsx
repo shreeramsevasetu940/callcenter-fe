@@ -10,8 +10,10 @@ import { CircleUser } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { signOut } from "next-auth/react";
+import { useRouter } from "next/router";
 
 export default function MainBar({children}) {
+ const router = useRouter()
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -34,7 +36,10 @@ export default function MainBar({children}) {
             <DropdownMenuSeparator />
             <DropdownMenuItem><Link href={'/setting'}>Settings</Link></DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem  onClick={() => signOut()}>Logout</DropdownMenuItem>
+            <DropdownMenuItem  onClick={async () => {
+  await signOut();
+  router.push('/sign-in');
+}}>Logout</DropdownMenuItem>
           </DropdownMenuContent>
             </DropdownMenu>
           </div>

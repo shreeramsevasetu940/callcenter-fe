@@ -6,7 +6,7 @@ const Settings = () => {
     const { data: session } = useSession();
   
   return (
-  <MemberForm staffId={session?.user?.user_id}/>
+  <MemberForm staffId={session?.user?.user_id} passwordField={true}/>
   )
 }
 

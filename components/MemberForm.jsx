@@ -6,7 +6,7 @@ import { useRouter } from "next/router";
 import { integrateGetApi } from "@/utils/api";
 import { useSession } from "next-auth/react";
 import moment from "moment";
-const MemberForm = ({ staffId = null }) => {
+const MemberForm = ({ staffId = null,passwordField=false }) => {
   const router = useRouter();
   const { data: session } = useSession();
   const authToken = session?.user?.token
@@ -19,6 +19,7 @@ const MemberForm = ({ staffId = null }) => {
     phone: "",
     joiningDate: "",
     companyMobileNo: "",
+    password:""
   });
   const [workExperience, setWorkExperience] = useState({
     workExperience: false,
@@ -115,6 +116,7 @@ const MemberForm = ({ staffId = null }) => {
     const { name, value } = e.target;
     setBankDetails((prev) => ({ ...prev, [name]: value }));
   };
+  
  // Function for New Data Submission
 const handleSubmit = async (e) => {
   e.preventDefault();
@@ -127,7 +129,7 @@ const handleSubmit = async (e) => {
     formData.append(key, value);
   });
 
-  formData.append("password", memberDetails?.phone);
+  formData.append("password",memberDetails?.phone);
 
   // Append work experience details
   Object.entries(workExperience).forEach(([key, value]) => {
@@ -182,8 +184,7 @@ const handleUpdate = async (e) => {
     formData.append(key, value);
   });
 
-  formData.append("password", memberDetails?.phone);
-
+  !passwordField&&formData.append("password", memberDetails?.phone);
   // Append work experience details
   Object.entries(workExperience).forEach(([key, value]) => {
     const formKey = key === "address"
@@ -214,9 +215,8 @@ const handleUpdate = async (e) => {
       { headers: { 'Content-Type': 'multipart/form-data' } }
     );
 
-    console.log('Response:', response.data);
     showToast.success('Data updated successfully');
-    router.push('/members');
+    !passwordField && router.push('/members');
   } catch (error) {
     console.error('Error updating data:', error);
     showToast.error('Failed to update data');
@@ -225,19 +225,24 @@ const handleUpdate = async (e) => {
   }
 };
 
+const fields = [
+  { label: "Name", name: "name" },
+  { label: "Email", name: "email", type: "email" },
+  { label: "Phone", name: "phone" },
+  { label: "Joining Date", name: "joiningDate", type: "date" },
+  { label: "Company Mobile No", name: "companyMobileNo" }
+];
+
+if (passwordField) {
+  fields.splice(3, 0, { label: "Password", name: "password", type: "password" });
+}
+
   return (
     <>
       <form onSubmit={handleSubmit} className="p-6 max-w-4xl mx-auto bg-white shadow-md rounded-lg space-y-6">
         <h2 className="text-2xl font-bold text-center mb-6">Member Details</h2>
-
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          {[
-            { label: "Name", name: "name" },
-            { label: "Email", name: "email", type: "email" },
-            { label: "Phone", name: "phone" },
-            { label: "Joining Date", name: "joiningDate", type: "date" },
-            { label: "Company Mobile No", name: "companyMobileNo" },
-          ].map(({ label, name, type = "text" }) => (
+          {fields?.map(({ label, name, type = "text" }) => (
             <div key={name} className="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:py-2">
               <label htmlFor={name} className="block text-sm font-medium text-gray-900 sm:pt-1.5">
                 {label}

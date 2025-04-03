@@ -46,8 +46,10 @@ export const useAuthCheck = () => {
                 const publicRoutes = ["/sign-in","/unauthorized"];
                 // Redirect if user role does not have access
                 if (
-                    !publicRoutes.includes(router.pathname) &&
-                    !roleBasedRoutes[userRole]?.includes(router.pathname)
+                    // !publicRoutes.includes(router.pathname) &&
+                    // !roleBasedRoutes[userRole]?.includes(router.pathname)
+                    !publicRoutes.some(route => router.pathname.startsWith(route)) &&
+                    !roleBasedRoutes[userRole]?.some(route => router.pathname.startsWith(route))
                 ) {
                     if (router.pathname !== "/unauthorized") {
                         router.push("/unauthorized"); // Avoid infinite loop
