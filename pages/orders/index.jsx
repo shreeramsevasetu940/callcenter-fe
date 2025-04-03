@@ -141,8 +141,8 @@ export default function OrderList() {
           />
           <div className="space-x-2 flex">
 
-          {activeTab=="Pending" &&<Button size="sm" className="h-7 gap-1 cursor-pointer" disabled={!selectedOrders?.length || loading} onClick={() => bulkUpdateOrderStatus('Dispatch')}>Dispatch Orders</Button>}
-          {activeTab=="Pending" && <Button size="sm" className="h-7 gap-1 cursor-pointer" disabled={!selectedOrders?.length || loading} onClick={() => bulkUpdateOrderStatus('Cancelled')}>Cancel Orders</Button>}
+          {activeTab=="Pending" &&<Button size="sm" className="h-7 gap-1 cursor-pointer" disabled={!selectedOrders?.length || loading} onClick={() => bulkUpdateOrderStatus('Dispatch')}>Dispatch</Button>}
+          {activeTab=="Pending" && <Button size="sm" className="h-7 gap-1 cursor-pointer" disabled={!selectedOrders?.length || loading} onClick={() => bulkUpdateOrderStatus('Cancelled')}>Cancelled</Button>}
             <Order allProducts={allProducts} refechData={refechData} Children={<Button size="sm" className="h-7 gap-1 cursor-pointer">
               <PlusCircle className="h-3.5 w-3.5" />
               <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
@@ -181,15 +181,15 @@ export default function OrderList() {
                 <TableRow key={item._id}>
                 {activeTab=="Pending"&&<TableCell>
                     <Checkbox
-                      checked={selectedOrders.includes(item._id)}
-                      onCheckedChange={() => handleSelectOrder(item._id)}
+                      checked={selectedOrders.includes(item?._id)}
+                      onCheckedChange={() => handleSelectOrder(item?._id)}
                     />
                   </TableCell>}
-                  <TableCell>{item.name}</TableCell>
-                  <TableCell>{item.phone}</TableCell>
-                  <TableCell>{item.price}</TableCell>
-                  <TableCell><Badge>{item.orderStatus}</Badge></TableCell>
-                  <TableCell>{item.deliveryPartner}</TableCell>
+                  <TableCell>{item?.name}</TableCell>
+                  <TableCell>{item?.phone}</TableCell>
+                  <TableCell>{item?.price}</TableCell>
+                  <TableCell><Badge>{item?.orderStatus}</Badge></TableCell>
+                  <TableCell>{item?.deliveryPartner}</TableCell>
                   <TableCell><Order allProducts={allProducts} refechData={refechData} item={item} Children={<Button variant={'outline'}>Edit</Button>} /></TableCell>
                 </TableRow>
               ))
