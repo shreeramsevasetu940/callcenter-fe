@@ -28,7 +28,7 @@ export default function LeadList() {
     currentPage +
     '&limit=25'+
     '&search=' +
-    searchkey
+    encodeURIComponent(searchkey)
 
     const refechData=()=>{
       integrateGetApi(url, setData, authToken);

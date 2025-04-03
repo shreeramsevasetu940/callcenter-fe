@@ -37,7 +37,7 @@ export default function OrderList() {
     currentPage +
     '&limit=25' +
     '&search=' +
-    searchkey +
+    encodeURIComponent(searchkey) +
     '&status=' +
     activeTab
 
@@ -45,7 +45,7 @@ export default function OrderList() {
     const url =
       process.env.NEXT_PUBLIC_BASEURL +
       'order/staff?page=1&limit=25&search=' +
-      searchkey +
+      encodeURIComponent(searchkey) +
       '&status=' +
       activeTab
     setData([]);

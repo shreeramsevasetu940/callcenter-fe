@@ -38,7 +38,7 @@ export default function DeliveryList() {
     currentPage +
     '&limit=25' +
     '&search=' +
-    searchkey +
+    encodeURIComponent(searchkey) +
     '&status=' +
     activeTab
 
@@ -46,7 +46,7 @@ export default function DeliveryList() {
     const url =
       process.env.NEXT_PUBLIC_BASEURL +
       'order?page=1&limit=25&search=' +
-      searchkey +
+      encodeURIComponent(searchkey) +
       '&status=' +
       activeTab
     setData([]);

@@ -34,7 +34,7 @@ export default function MemberList() {
     currentPage +
     '&limit=25'+
     '&search=' +
-    searchkey +
+    encodeURIComponent(searchkey) +
     '&status='+
     activeTab
     useEffect(() => {
