@@ -21,7 +21,7 @@ import moment from "moment";
 export default function Lead({ Children, item = null, refechData = () => { } }) {
   const [loading, setLoading] = useState(false);
   const dialogCloseRef = useRef(null);
-  const [leadDetails, setLeadDetails] = useState({ phone: '', name: '', address: '' });
+  const [leadDetails, setLeadDetails] = useState({ phone: '', name: ''});
   const [remarks, setRemarks] = useState([{ reason: '' }]);
   const { data: session } = useSession();
   const authToken = session?.user?.token
@@ -30,27 +30,25 @@ export default function Lead({ Children, item = null, refechData = () => { } }) 
       setLeadDetails({
         phone: item?.phone,
         name: item?.name,
-        address: item?.address
       })
       setRemarks(item?.remark ?? [{ reason: '' }])
     }
   }, [item])
 
 
-  const handleClear=()=>{
+  const handleClear = () => {
     if (item) {
       setLeadDetails({
         phone: item?.phone,
         name: item?.name,
-        address: item?.address
       })
       setRemarks(item?.remark ?? [{ reason: '' }])
     }
-    else{ 
-      setLeadDetails({ phone: '', name: '', address: '' });
+    else {
+      setLeadDetails({ phone: '', name: ''});
       setRemarks([{ reason: '' }])
     }
-  } 
+  }
 
   const handleLeadChange = (e) => {
     const { name, value } = e.target;
@@ -110,12 +108,12 @@ export default function Lead({ Children, item = null, refechData = () => { } }) 
   };
 
   return (
-    <Dialog 
-    onOpenChange={(isOpen) => {
-    if (!isOpen) {
-      handleClear(); // Dialog close hone par clear function ko call karega
-    }
-  }}>
+    <Dialog
+      onOpenChange={(isOpen) => {
+        if (!isOpen) {
+          handleClear(); // Dialog close hone par clear function ko call karega
+        }
+      }}>
       <DialogTrigger asChild>
         {Children}
       </DialogTrigger>
@@ -127,19 +125,14 @@ export default function Lead({ Children, item = null, refechData = () => { } }) 
         </div>
         <form className="space-y-5">
           <div className="space-y-4">
-            {[{ label: 'Phone', name: 'phone' }, { label: 'Name', name: 'name' }, { label: 'Address', name: 'address' }].map(({ label, name }) => (
+            {[{ label: 'Phone', name: 'phone' }, { label: 'Name', name: 'name' }].map(({ label, name }) => (
               <div key={label} className="*:not-first:mt-2">
                 <Label htmlFor={name}>{label}</Label>
-                {name !== "address" ? <Input id={name}
+                <Input id={name}
                   name={name}
                   value={leadDetails[name]}
                   onChange={handleLeadChange}
-                  type="text" required /> :
-                  <Textarea id={name}
-                    name={name}
-                    value={leadDetails[name]}
-                    onChange={handleLeadChange}
-                    placeholder="Type your address here." />}
+                  type="text" required />
               </div>
             ))}
             <div className="*:not-first:mt-2">

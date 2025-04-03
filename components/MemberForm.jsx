@@ -6,6 +6,10 @@ import { useRouter } from "next/router";
 import { integrateGetApi } from "@/utils/api";
 import { useSession } from "next-auth/react";
 import moment from "moment";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
+import { Label } from "./ui/label";
+import { Input } from "./ui/input";
+import { Textarea } from "./ui/textarea";
 const MemberForm = ({ staffId = null,passwordField=false }) => {
   const router = useRouter();
   const { data: session } = useSession();
@@ -244,11 +248,11 @@ if (passwordField) {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           {fields?.map(({ label, name, type = "text" }) => (
             <div key={name} className="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:py-2">
-              <label htmlFor={name} className="block text-sm font-medium text-gray-900 sm:pt-1.5">
+              <Label htmlFor={name} className="block text-sm font-medium text-gray-900 sm:pt-1.5">
                 {label}
-              </label>
+              </Label>
               <div className="mt-2 sm:col-span-2 sm:mt-0">
-                <input
+                <Input
                   id={name}
                   name={name}
                   disabled={staffId&&name==="phone"}
@@ -264,29 +268,36 @@ if (passwordField) {
         </div>
 
         <div className="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:py-2">
-          <label htmlFor="branch" className="block text-sm font-medium text-gray-900 sm:pt-1.5">
+          <Label htmlFor="branch" className="block text-sm font-medium text-gray-900 sm:pt-1.5">
             Branch
-          </label>
+          </Label>
           <div className="mt-2 sm:col-span-2 sm:mt-0">
-            <select
-              id="branch"
-              name="branch"
-              onChange={handleMemberChange}
+            <Select
+              name={"branch"}
               value={memberDetails?.branch}
-              required
-              className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 outline-gray-300 focus:outline-indigo-600 sm:max-w-xs sm:text-sm"
+              // onValueChange={handleMemberChange}
+              onValueChange={(value) => handleMemberChange({ target: { name: "branch", value } })}
+
             >
-              <option value="">Select Branch</option>
-              <option value="umra">Umra</option>
-              <option value="motavarchha">Motavarchha</option>
-            </select>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select Branch" />
+              </SelectTrigger>
+              <SelectContent>
+
+                {["Shree Ram Seva Sansthan", "Shivam Wellness"]?.map((option, idx) => (
+                  <SelectItem key={idx} value={option}>
+                    {option}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </div>
 
         <div className="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:py-2">
-          <label className="block text-sm font-medium text-gray-900 sm:pt-1.5">Work Experience</label>
+          <Label className="block text-sm font-medium text-gray-900 sm:pt-1.5">Work Experience</Label>
           <div className="mt-2 sm:col-span-2 sm:mt-0">
-            <label className="mr-4">
+            <Label className="mr-4">
               <input
                 type="radio"
                 name="workExperience"
@@ -296,8 +307,8 @@ if (passwordField) {
                 aria-label="Yes"
               />
               Yes
-            </label>
-            <label>
+            </Label>
+            <Label>
               <input
                 type="radio"
                 name="workExperience"
@@ -307,7 +318,7 @@ if (passwordField) {
                 aria-label="No"
               />
               No
-            </label>
+            </Label>
           </div>
         </div>
 
@@ -317,9 +328,9 @@ if (passwordField) {
           { label: "Street Address", name: "address" },
         ].map(({ label, name }) => (
           <div key={name} className="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:py-2">
-            <label htmlFor={name} className="block text-sm font-medium text-gray-900 sm:pt-1.5">{label}</label>
+            <Label htmlFor={name} className="block text-sm font-medium text-gray-900 sm:pt-1.5">{label}</Label>
             <div className="mt-2 sm:col-span-2 sm:mt-0">
-              <textarea
+              <Textarea
                 id={name}
                 name={name}
                 rows={3}
@@ -334,9 +345,9 @@ if (passwordField) {
         <h3 className="text-lg font-semibold">Personal Information</h3>
         {["photo", "AdharCard", "PanCard", "workExperienceCertificate", "signature"].map((field) => (
           <div key={field} className="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:py-2">
-            <label htmlFor={field} className="block text-sm font-medium text-gray-900 sm:pt-1.5">
+            <Label htmlFor={field} className="block text-sm font-medium text-gray-900 sm:pt-1.5">
               {field.replace(/([A-Z])/g, " $1")}
-            </label>
+            </Label>
             <div className="mt-2 sm:col-span-2 sm:mt-0">
               <input
                 id={field}
@@ -360,11 +371,11 @@ if (passwordField) {
         <h3 className="text-lg font-semibold">Bank Details</h3>
         {["fullName", "ifscCode", "accountNumber", "branch", "bankName"].map((field) => (
           <div key={field} className="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:py-2">
-            <label htmlFor={field} className="block text-sm font-medium text-gray-900 sm:pt-1.5">
+            <Label htmlFor={field} className="block text-sm font-medium text-gray-900 sm:pt-1.5">
               {field.replace(/([A-Z])/g, " $1")}
-            </label>
+            </Label>
             <div className="mt-2 sm:col-span-2 sm:mt-0">
-              <input
+              <Input
                 id={field}
                 name={field}
                 type="text"

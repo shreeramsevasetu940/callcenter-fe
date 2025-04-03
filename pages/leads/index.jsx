@@ -72,7 +72,6 @@ export default function LeadList() {
             {[
               { key: "name", label: "Name" },
               { key: "phone", label: "Phone" },
-              { key: "address", label: "Address" },
               { key: "action", label: "Action" },
             ].map((column) => (
               <TableHead key={column.key}>
@@ -87,7 +86,6 @@ export default function LeadList() {
               <TableRow key={item._id}>
                 <TableCell>{item.name}</TableCell>
                 <TableCell>{item.phone}</TableCell>
-                <TableCell>{item.address}</TableCell>
                 <TableCell><Lead refechData={refechData} item={item} Children={<Button variant={'outline'}>Edit</Button>}/></TableCell>
               </TableRow>
             ))
