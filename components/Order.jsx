@@ -119,7 +119,7 @@ export default function Order({ Children, allProducts = {}, item = null, refechD
 
       let response;
       if (item) {
-        response = await axios.put(process.env.NEXT_PUBLIC_BASEURL + 'order/' + item?._id, payload, {
+        response = await axios.put(process.env.NEXT_PUBLIC_BASEURL + 'order/update/' + item?._id, payload, {
           headers: { "auth-token": authToken, 'Content-Type': 'application/json' },
         });
       } else {
