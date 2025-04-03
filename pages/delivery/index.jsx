@@ -19,6 +19,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { showToast } from "@/components/ToastComponent";
 import axios from "axios";
 import Delivery from "@/components/Delivery";
+import Link from "next/link";
 export default function DeliveryList() {
   const [activeTab, setActiveTab] = useState('All');
   const [loading, setLoading] = useState(false);
@@ -167,6 +168,9 @@ export default function DeliveryList() {
                   {column.label}
                 </TableHead>
               ))}
+              {activeTab=="Dispatch"&&<TableHead>
+                Track Order
+              </TableHead>}
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -185,6 +189,7 @@ export default function DeliveryList() {
                   <TableCell><Badge>{item?.orderStatus}</Badge></TableCell>
                   <TableCell>{item?.deliveryPartner}</TableCell>
                   <TableCell><Delivery allProducts={allProducts} refechData={refechData} item={item} Children={<Button variant={'outline'}>Edit</Button>} /></TableCell>
+                {(activeTab=="Dispatch"&&item?.deliveryPartner=="Delhivery"&&item?.trackingId)&&<TableCell><Link target="_blank" href={`https://www.delhivery.com/track-v2/package/${item?.trackingId}`}><Button size={"sm"}>Track Order</Button></Link></TableCell>}
                 </TableRow>
               ))
             ) : (

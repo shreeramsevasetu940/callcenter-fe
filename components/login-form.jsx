@@ -6,6 +6,7 @@ import { useRouter } from "next/router"
 import { useEffect, useState } from "react"
 import { signIn as nextAuthSignIn, useSession } from 'next-auth/react'
 import { showToast } from "./ToastComponent"
+import Link from "next/link"
 
 export function LoginForm({
   className,
@@ -25,7 +26,6 @@ export function LoginForm({
       password: password,
       redirect: false,
     })
-    console.log(res,"evlrnrjknekejner")
     if (!res.error) {
         showToast.success('Login successfully');
       router.push('/')
@@ -62,9 +62,9 @@ export function LoginForm({
         <div className="grid gap-3">
           <div className="flex items-center">
             <Label htmlFor="password">Password</Label>
-            <a href="#" className="ml-auto text-sm underline-offset-4 hover:underline">
+            <Link href="#" className="ml-auto text-sm underline-offset-4 hover:underline">
               Forgot your password?
-            </a>
+            </Link>
           </div>
           <Input id="password" onChange={(e)=>setPassword(e.target.value)}
           value={password}
