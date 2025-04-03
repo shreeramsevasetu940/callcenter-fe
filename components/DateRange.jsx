@@ -1,47 +1,63 @@
-import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarIcon } from "lucide-react";
-import moment from "moment";
-import { useState } from "react";
+import React from 'react';
 
-const DateRange = ({ dateRange, setDateRange }) => {
-  const [tempRange, setTempRange] = useState(dateRange || { from: null, to: null });
-  const [open, setOpen] = useState(false); // Track Popover state
+const DateRangeInputs = ({ dateRange, setDateRange }) => {
+  const handleStartDateChange = (e) => {
+    const newStartDate = e.target.value;
+    
+    // Update the dateRange object with the new start date
+    setDateRange({
+      ...dateRange,
+      startDate: newStartDate,
+      // Reset end date if it's before the new start date
+      endDate: dateRange.endDate && newStartDate > dateRange.endDate ? '' : dateRange.endDate
+    });
+  };
 
-  const handleDateChange = (range) => {
-    if (!range?.from || !range?.to) {
-      setTempRange(range); // Update temporary state if only one date is selected
-      return;
+  const handleEndDateChange = (e) => {
+    const newEndDate = e.target.value;
+    
+    // Only update if end date isn't before start date
+    if (!dateRange.startDate || newEndDate >= dateRange.startDate) {
+      setDateRange({
+        ...dateRange,
+        endDate: newEndDate
+      });
     }
-
-    setTempRange(range);
-    setDateRange(range);
-    setOpen(false); // Close Popover only when both dates are selected
   };
 
   return (
-    <div>
-      <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger asChild>
-          <Button variant="outline" className="h-9 w-60 justify-start text-left">
-            <CalendarIcon className="h-4 w-4 mr-2" />
-            {tempRange?.from && tempRange?.to
-              ? `${moment(tempRange.from).format("DD MMM YYYY")} - ${moment(tempRange.to).format("DD MMM YYYY")}`
-              : "Pick date range"}
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent align="start" className="w-auto p-2">
-          <Calendar
-            mode="range"
-            selected={tempRange}
-            onSelect={handleDateChange}
-            numberOfMonths={2}
-          />
-        </PopoverContent>
-      </Popover>
-    </div>
+   <>
+     {/* <div className="flex  sm:flex-row gap-4">
+      <div className="flex flex-col">
+        <label htmlFor="start-date" className="text-sm font-medium text-gray-700 mb-1">
+          Start Date
+        </label>
+        <input
+          id="start-date"
+          type="date"
+          value={dateRange.startDate || ''}
+          onChange={handleStartDateChange}
+          className="px-3 py-1 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        />
+      </div>
+
+      <div className="flex flex-col">
+        <label htmlFor="end-date" className="text-sm font-medium text-gray-700 mb-1">
+          End Date
+        </label>
+        <input
+          id="end-date"
+          type="date"
+          value={dateRange.endDate || ''}
+          onChange={handleEndDateChange}
+          min={dateRange.startDate || ''}
+          disabled={!dateRange.startDate}
+          className="px-3 py-1 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+        />
+      </div>
+    </div> */}
+   </>
   );
 };
 
-export default DateRange;
+export default DateRangeInputs;
