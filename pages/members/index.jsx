@@ -34,7 +34,7 @@ export default function MemberList() {
     currentPage +
     '&limit=25'+
     '&search=' +
-    searchkey +
+    encodeURIComponent(searchkey) +
     '&status='+
     activeTab
     useEffect(() => {
@@ -73,7 +73,7 @@ export default function MemberList() {
   return (
     <div className="space-y-4 p-4">
 <Tabs value={activeTab} onValueChange={setActiveTab}>
- <div className="flex justify-between items-center">
+ <div className="flex justify-between space-x-2 items-center">
  <TabsList>
     <TabsTrigger className={'cursor-pointer'} value="all">All</TabsTrigger>
     <TabsTrigger className={'cursor-pointer'} value="active">Active</TabsTrigger>

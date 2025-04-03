@@ -50,7 +50,7 @@ export default function ProductList() {
   const totalPages = data?.totalPages??0;
   return (
     <div className="space-y-4 p-4">
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between space-x-2 items-center">
         <Input
           type="text"
           placeholder="Search Products..."

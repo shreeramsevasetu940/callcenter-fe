@@ -1,8 +1,11 @@
+import React from 'react'
 
-export default function  index() {
+const index = () => {
   return (
-    <>
-HELLO
-    </>
+    <div>
+      Home Page
+    </div>
   )
 }
+
+export default index

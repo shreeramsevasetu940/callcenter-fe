@@ -14,7 +14,9 @@ import {PlusCircle, StepBack, StepForward } from "lucide-react";
 import { integrateGetApi } from "@/utils/api";
 import { useSession } from "next-auth/react";
 import Lead from "@/components/Lead";
+import DateRange from "@/components/DateRange";
 export default function LeadList() {
+  const [dateRange, setDateRange] = useState({ from: undefined, to: undefined });
   const [data, setData] = useState([]);
   const [searchkey, setSearchkey] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -26,7 +28,9 @@ export default function LeadList() {
     currentPage +
     '&limit=25'+
     '&search=' +
-    searchkey
+    encodeURIComponent(searchkey)+
+    (dateRange?.from ? '&startDate=' + dateRange?.from : '') +
+    (dateRange?.to ? '&endDate=' + dateRange?.to : '');
 
     const refechData=()=>{
       integrateGetApi(url, setData, authToken);
@@ -41,7 +45,7 @@ export default function LeadList() {
       }
     }, searchkey ? 2000 : 0); // 2 seconds debounce only for `searchkey`
     return () => clearTimeout(handler); // Clear timeout on dependency change
-  }, [authToken, searchkey, currentPage]);
+  }, [authToken, searchkey, currentPage,dateRange]);
   const handleSearch = (e) => {
     setCurrentPage(1);
     setSearchkey(e.target.value)
@@ -50,14 +54,17 @@ export default function LeadList() {
   const totalPages = data?.totalPages??0;
   return (
     <div className="space-y-4 p-4">
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center space-x-2">
+      <div className="md:flex max-sm:space-y-2 md:space-x-2">
+      <DateRange dateRange={dateRange} setDateRange={setDateRange}/>
         <Input
           type="text"
           placeholder="Search Leads..."
           value={searchkey}
           onChange={handleSearch}
-          className="w-full md:w-1/2"
+          className="w-60 md:w-96"
         />
+      </div>
         <Lead refechData={refechData} Children={<Button size="sm" className="h-7 gap-1 cursor-pointer">
           <PlusCircle className="h-3.5 w-3.5" />
           <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
