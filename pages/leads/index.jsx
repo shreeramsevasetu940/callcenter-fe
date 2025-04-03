@@ -28,7 +28,9 @@ export default function LeadList() {
     currentPage +
     '&limit=25'+
     '&search=' +
-    encodeURIComponent(searchkey)
+    encodeURIComponent(searchkey)+
+    (dateRange?.from ? '&startDate=' + dateRange?.from : '') +
+    (dateRange?.to ? '&endDate=' + dateRange?.to : '');
 
     const refechData=()=>{
       integrateGetApi(url, setData, authToken);
@@ -43,7 +45,7 @@ export default function LeadList() {
       }
     }, searchkey ? 2000 : 0); // 2 seconds debounce only for `searchkey`
     return () => clearTimeout(handler); // Clear timeout on dependency change
-  }, [authToken, searchkey, currentPage]);
+  }, [authToken, searchkey, currentPage,dateRange]);
   const handleSearch = (e) => {
     setCurrentPage(1);
     setSearchkey(e.target.value)
