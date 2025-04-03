@@ -20,7 +20,9 @@ import { showToast } from "@/components/ToastComponent";
 import axios from "axios";
 import Delivery from "@/components/Delivery";
 import Link from "next/link";
+import DateRange from "@/components/DateRange";
 export default function DeliveryList() {
+  const [dateRange, setDateRange] = useState({ from: undefined, to: undefined });
   const [activeTab, setActiveTab] = useState('All');
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState([]);
@@ -131,13 +133,16 @@ export default function DeliveryList() {
       </div>
       <div className="space-y-4 p-4">
         <div className="flex space-x-2 justify-between items-center">
+        <div className="md:flex max-sm:space-y-2 md:space-x-2">
+        <DateRange dateRange={dateRange} setDateRange={setDateRange}/>
           <Input
             type="text"
             placeholder="Search Orders..."
             value={searchkey}
             onChange={handleSearch}
-            className="w-full md:w-1/2"
+            className="w-60 md:w-96"
           />
+          </div>
           <div className="space-x-2 flex">
 
           {["Pending","RTO"].includes(activeTab)&&<Button size="sm" className="max-md:block h-7 gap-1 cursor-pointer" disabled={!selectedOrders?.length || loading} onClick={() => bulkUpdateOrderStatus('Dispatch')}>Dispatch</Button>}

@@ -19,7 +19,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { showToast } from "@/components/ToastComponent";
 import axios from "axios";
+import DateRange from "@/components/DateRange";
 export default function OrderList() {
+  const [dateRange, setDateRange] = useState({ from: undefined, to: undefined });
   const [activeTab, setActiveTab] = useState('All');
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState([]);
@@ -131,14 +133,17 @@ export default function OrderList() {
         </TabsList>
       </div>
       <div className="space-y-4 p-4">
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between space-x-2 items-center">
+        <div className="md:flex max-sm:space-y-2 md:space-x-2">
+        <DateRange dateRange={dateRange} setDateRange={setDateRange}/>
           <Input
             type="text"
             placeholder="Search Orders..."
             value={searchkey}
             onChange={handleSearch}
-            className="w-full md:w-1/2"
+            className="w-60 md:w-96"
           />
+          </div>
           <div className="space-x-2 flex">
 
           {activeTab=="Pending" &&<Button size="sm" className="h-7 gap-1 cursor-pointer" disabled={!selectedOrders?.length || loading} onClick={() => bulkUpdateOrderStatus('Dispatch')}>Dispatch</Button>}
