@@ -5,7 +5,7 @@ import "react-toastify/dist/ReactToastify.css";
 const ToastComponent = () => {
   return <ToastContainer position="top-right" autoClose={3000} theme="colored"
 transition={Flip}/>;
-};
+}; 
 
 // Export toast functions correctly
 export const showToast = {
