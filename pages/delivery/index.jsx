@@ -21,6 +21,7 @@ import axios from "axios";
 import Delivery from "@/components/Delivery";
 import Link from "next/link";
 import DateRange from "@/components/DateRange";
+import * as XLSX from "xlsx";
 export default function DeliveryList() {
   const [activeTab, setActiveTab] = useState('All');
   const [loading, setLoading] = useState(false);
@@ -90,6 +91,7 @@ export default function DeliveryList() {
     }, searchkey ? 2000 : 0); // 2 seconds debounce only for `searchkey`
     return () => clearTimeout(handler); // Clear timeout on dependency change
   }, [authToken, searchkey, currentPage, activeTab, dateRange]);
+
   const handleSearch = (e) => {
     setCurrentPage(1);
     setSearchkey(e.target.value)
@@ -136,6 +138,80 @@ export default function DeliveryList() {
     }
   };
 
+  const downloadxls = async (e) => {
+    try {
+      setLoading(true);
+      e.preventDefault();
+  
+      const baseUrl = process.env.NEXT_PUBLIC_BASEURL;
+      const query = `order?page=1&limit=9999999999&search=${searchkey}&status=${activeTab}` +
+        (dateRange?.startDate ? `&startDate=${dateRange.startDate}` : '') +
+        (dateRange?.endDate ? `&endDate=${dateRange.endDate}` : '');
+      const url = `${baseUrl}${query}`;
+  
+      const response = await axios.get(url, {
+        headers: {
+          'Content-Type': 'application/json',
+          'auth-token': authToken,
+        },
+      });
+  
+      const rawData = response?.data?.orderList || [];
+  
+      // Optional: Format and flatten nested data (e.g., user and product fields)
+      const formattedData = rawData.map(order => ({
+        OrderID: order._id || '',
+        StaffID: order.staffId || '',
+        Ref: order.staffId.name || '',
+        Name: order.name || '',
+        Phone: order.phone || '',
+        OrderStatus: order.orderStatus || '',
+        Branch: order.branch || '',
+        FeedbackCallDays: order.feedbackCallDays || '',
+        FeedbackCallDate: order.feedbackCallDate ? new Date(order.feedbackCallDate).toLocaleDateString() : '',
+        DispatchDate: order.dispatchDate ? new Date(order.dispatchDate).toLocaleDateString() : '',
+        CreatedAt: order.createdAt ? new Date(order.createdAt).toLocaleString() : '',
+        Price: order.price || '',
+        Products: order.products?.map(p => `${p.name} (Qty: ${p.qty}, ₹${p.price})`).join(', ') || '',
+        Address: order.address?.address || '',
+        Pincode: order.address?.pincode || '',
+        Village: order.address?.village || '',
+        District: order.address?.district || '',
+        Taluka: order.address?.taluka || '',
+        State: order.address?.state || '',
+        Landmark: order.address?.landmark || '',
+      }));
+  
+      const ws = XLSX.utils.json_to_sheet(formattedData);
+  
+      // Dynamic column width
+      const maxLengths = formattedData.reduce((acc, row) => {
+        Object.keys(row).forEach(key => {
+          const value = row[key]?.toString() || '';
+          const length = value.length;
+          if (!acc[key] || length > acc[key]) {
+            acc[key] = length;
+          }
+        });
+        return acc;
+      }, {});
+  
+      const cols = Object.keys(maxLengths).map(key => ({
+        wch: maxLengths[key] < 20 ? 20 : maxLengths[key]
+      }));
+      ws['!cols'] = cols;
+  
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Orders');
+      XLSX.writeFile(wb, 'orders.xlsx');
+    } catch (error) {
+      console.error("Failed to download XLS:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+
   const totalPages = data?.totalPages ?? 0;
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab}>
@@ -166,6 +242,7 @@ export default function DeliveryList() {
               {activeTab == "Pending" && <Button size="sm" className="h-7 gap-1 cursor-pointer" disabled={!selectedOrders?.length || loading} onClick={() => bulkUpdateOrderStatus('Cancelled')}>Cancelled</Button>}
               {activeTab == "Dispatch" && <Button size="sm" className="h-7 gap-1 cursor-pointer" disabled={!selectedOrders?.length || loading} onClick={() => bulkUpdateOrderStatus('Delivered')}>Delivered</Button>}
               {activeTab == "Dispatch" && <Button size="sm" className="h-7 gap-1 cursor-pointer" disabled={!selectedOrders?.length || loading} onClick={() => bulkUpdateOrderStatus('RTO')}>RTO</Button>}
+              <Button disabled={loading} onClick={(e)=>downloadxls(e)}>Get Excel File</Button>
             </div>
           {/* </div> */}
         </div>

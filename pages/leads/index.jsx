@@ -10,12 +10,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import * as XLSX from "xlsx";
 import {PlusCircle, StepBack, StepForward } from "lucide-react";
 import { integrateGetApi } from "@/utils/api";
 import { useSession } from "next-auth/react";
 import Lead from "@/components/Lead";
 import DateRange from "@/components/DateRange";
+import axios from "axios";
 export default function LeadList() {
+  const [loading, setLoading] = useState(false);
   const [data, setData] = useState([]);
   const [searchkey, setSearchkey] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -66,6 +69,76 @@ export default function LeadList() {
     setSearchkey(e.target.value)
   }
 
+
+  const downloadxls = async (e) => {
+    try {
+      setLoading(true);
+      e.preventDefault();
+      const url =process.env.NEXT_PUBLIC_BASEURL +
+      basePath +
+      '?page=1&limit=9999999'+
+      '&search=' +
+      searchkey+
+      (dateRange?.startDate ? '&startDate=' + dateRange?.startDate : '') +
+      (dateRange?.endDate ? '&endDate=' + dateRange?.endDate : '');
+      const response = await axios.get(url, {
+        headers: {
+          'Content-Type': 'application/json',
+          'auth-token': authToken,
+        },
+      });
+  
+      const rawData = response?.data?.leadList || [];
+      // Optional: Format and flatten nested data (e.g., user and product fields)
+      const formattedData = rawData.map(lead => {
+        const remarks = lead.remark?.slice(0, 5) || [];
+        return {
+          LeadID: lead._id || '',
+          StaffID: lead.staffId._id || '',
+          Ref: lead.staffId.name || '',
+          Name: lead.name || '',
+          Phone: lead.phone || '',
+          Branch: lead.branch || '',
+          CreatedAt: lead.createdAt ? new Date(lead.createdAt).toLocaleString() : '',
+          UpdatedAt: lead.updatedAt ? new Date(lead.updatedAt).toLocaleString() : '',
+          // Add remarks individually
+          'Remark 1': remarks[0] ? `${remarks[0].reason}`: '',
+          'Remark 2': remarks[1] ? `${remarks[1].reason}`: '',
+          'Remark 3': remarks[2] ? `${remarks[2].reason}`: '',
+          'Remark 4': remarks[3] ? `${remarks[3].reason}`: '',
+          'Remark 5': remarks[4] ? `${remarks[4].reason}`: '',
+        };
+      });
+  
+      const ws = XLSX.utils.json_to_sheet(formattedData);
+  
+      // Dynamic column width
+      const maxLengths = formattedData.reduce((acc, row) => {
+        Object.keys(row).forEach(key => {
+          const value = row[key]?.toString() || '';
+          const length = value.length;
+          if (!acc[key] || length > acc[key]) {
+            acc[key] = length;
+          }
+        });
+        return acc;
+      }, {});
+  
+      const cols = Object.keys(maxLengths).map(key => ({
+        wch: maxLengths[key] < 20 ? 20 : maxLengths[key]
+      }));
+      ws['!cols'] = cols;
+  
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Leads');
+      XLSX.writeFile(wb, 'leads.xlsx');
+    } catch (error) {
+      console.error("Failed to download XLS:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const totalPages = data?.totalPages??0;
   return (
     <div className="space-y-4 p-4">
@@ -81,6 +154,7 @@ export default function LeadList() {
     />
   </div>
 
+<Button disabled={loading} onClick={(e)=>downloadxls(e)}>Get Excel File</Button>
   {/* Add Lead Button Section */}
   <Lead refechData={refechData} Children={<Button size="sm" className="h-7 gap-1 cursor-pointer">
           <PlusCircle className="h-3.5 w-3.5" />
