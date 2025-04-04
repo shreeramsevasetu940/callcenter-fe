@@ -16,7 +16,6 @@ import {
 } from "@/components/ui/sidebar"
 import { useSession } from "next-auth/react";
 import Link from "next/link";
-import { Button } from "./ui/button";
 
 const navMain ={
     admin:{
@@ -63,6 +62,10 @@ const navMain ={
           title: "Members",
           url: "/members",
         },
+        {
+          title: "Balance",
+          url: "/balance",
+        },
       ],
     },
     employee:{
@@ -80,6 +83,10 @@ const navMain ={
           title: "Orders",
           url: "/orders",
         },
+        {
+          title: "Balance",
+          url: "/balance",
+        },
       ],
     },
     couriermanager:{
@@ -93,6 +100,10 @@ const navMain ={
           title: "Members",
           url: "/members",
         },
+        {
+          title: "Balance",
+          url: "/balance",
+        },
       ],
     },
     teamleader:{
@@ -105,6 +116,10 @@ const navMain ={
         {
           title: "Members",
           url: "/members",
+        },
+        {
+          title: "Balance",
+          url: "/balance",
         },
       ],
     }}
