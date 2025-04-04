@@ -19,38 +19,38 @@ import { showToast } from "./ToastComponent";
 export default function Balance({ Children, item = null, refechData = () => { } }) {
   const [loading, setLoading] = useState(false);
   const dialogCloseRef = useRef(null);
-  const [productDetails, setProductDetails] = useState({ amount:0 });
+  const [balanceDetails, setBalanceDetails] = useState({ amount:0 });
   const { data: session } = useSession();
   const authToken = session?.user?.token
   useEffect(() => {
     if (item) {
-      setProductDetails({
-        amount: item?.price
+      setBalanceDetails({
+        amount: item?.amount
       })
     }
   }, [item])
 
   const handleClear=()=>{
     if (item) {
-      setProductDetails({
-        amount: item?.price
+      setBalanceDetails({
+        amount: item?.amount
       })
     }
     else{ 
-      setProductDetails({amount:0 });
+      setBalanceDetails({amount:0 });
     }
   } 
 
-  const handleProductChange = (e) => {
+  const handleBalanceChange = (e) => {
     const { name, value } = e.target;
-    setProductDetails((prev) => ({ ...prev, [name]: value }));
+    setBalanceDetails((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true); // Start loading
     try {
-      const payload = productDetails
+      const payload = balanceDetails
       let response;
       if (item) {
         response = await axios.put(process.env.NEXT_PUBLIC_BASEURL + 'balance/' + item?._id, payload, {
@@ -110,8 +110,8 @@ export default function Balance({ Children, item = null, refechData = () => { } 
                 <Label htmlFor={name}>{label}</Label>
                 <Input id={name}
                   name={name}
-                  value={productDetails[name]}
-                  onChange={handleProductChange}
+                  value={balanceDetails[name]}
+                  onChange={handleBalanceChange}
                   type={'number'} required />
               </div>
             ))}
@@ -123,7 +123,7 @@ export default function Balance({ Children, item = null, refechData = () => { } 
             disabled={loading}
           >
             {loading ? (
-              <div className=" h-5 bproduct-2 bproduct-white bproduct-t-transparent rounded-full animate-spin"></div>
+              <div className=" h-5 bbalance-2 bbalance-white bbalance-t-transparent rounded-full animate-spin"></div>
             ) : (
               item ? "Update" : "Save"
             )}
