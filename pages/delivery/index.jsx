@@ -160,13 +160,14 @@ export default function DeliveryList() {
               onChange={handleSearch}
               className="w-full md:w-96"
             />
+            </div>
             <div className="space-x-2 flex">
               {["Pending", "RTO"].includes(activeTab) && <Button size="sm" className="max-md:block h-7 gap-1 cursor-pointer" disabled={!selectedOrders?.length || loading} onClick={() => bulkUpdateOrderStatus('Dispatch')}>Dispatch</Button>}
               {activeTab == "Pending" && <Button size="sm" className="h-7 gap-1 cursor-pointer" disabled={!selectedOrders?.length || loading} onClick={() => bulkUpdateOrderStatus('Cancelled')}>Cancelled</Button>}
               {activeTab == "Dispatch" && <Button size="sm" className="h-7 gap-1 cursor-pointer" disabled={!selectedOrders?.length || loading} onClick={() => bulkUpdateOrderStatus('Delivered')}>Delivered</Button>}
               {activeTab == "Dispatch" && <Button size="sm" className="h-7 gap-1 cursor-pointer" disabled={!selectedOrders?.length || loading} onClick={() => bulkUpdateOrderStatus('RTO')}>RTO</Button>}
             </div>
-          </div>
+          {/* </div> */}
         </div>
         <Table>
           <TableHeader>
