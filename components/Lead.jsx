@@ -124,7 +124,7 @@ export default function Lead({ Children, item = null, refechData = () => { } }) 
         </div>
         <form className="space-y-5">
           <div className="space-y-4">
-            {[{ label: 'Phone', name: 'phone' }, { label: 'Name', name: 'name' }].map(({ label, name }) => (
+            {[{ label: 'Name', name: 'name' },{ label: 'Phone', name: 'phone' }].map(({ label, name }) => (
               <div key={label} className="*:not-first:mt-2">
                 <Label htmlFor={name}>{label}</Label>
                 <Input id={name}

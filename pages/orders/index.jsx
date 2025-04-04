@@ -62,6 +62,7 @@ export default function OrderList() {
   useEffect(() => {
     const handler = setTimeout(() => {
       if (authToken) {
+        setSelectedOrders([])
         setData([]);
         integrateGetApi(url, setData, authToken);
       } else {
@@ -140,7 +141,7 @@ export default function OrderList() {
             placeholder="Search Orders..."
             value={searchkey}
             onChange={handleSearch}
-            className="w-full md:w-1/2"
+            className="w-full md:w-96"
           />
           <div className="space-x-2 flex">
           {activeTab=="Pending" &&<Button size="sm" className="h-7 gap-1 cursor-pointer" disabled={!selectedOrders?.length || loading} onClick={() => bulkUpdateOrderStatus('Dispatch')}>Dispatch</Button>}
