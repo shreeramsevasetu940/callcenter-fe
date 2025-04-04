@@ -29,6 +29,21 @@ export default function OrderList() {
   const [allProducts, setAllProducts] = useState(null);
   const [selectedOrders, setSelectedOrders] = useState([]);
   const { data: session } = useSession();
+
+  const [dateRange, setDateRange] = useState({
+    rangeType: 'all',
+    startDate: null,
+    endDate: null,
+  })
+
+  const handleDateChange = ({ value, startDate, endDate }) => {
+    setDateRange({
+      rangeType: value,
+      startDate,
+      endDate,
+    })
+  }
+
   const authToken = session?.user?.token
   const url =
     process.env.NEXT_PUBLIC_BASEURL +
@@ -38,7 +53,9 @@ export default function OrderList() {
     '&search=' +
     searchkey +
     '&status=' +
-    activeTab
+    activeTab+
+    (dateRange?.startDate ? '&startDate=' + dateRange?.startDate : '') +
+    (dateRange?.endDate ? '&endDate=' + dateRange?.endDate : '');
 
   const refechData = () => {
     const url =
@@ -46,7 +63,9 @@ export default function OrderList() {
       'order/staff?page=1&limit=25&search=' +
       searchkey +
       '&status=' +
-      activeTab
+      activeTab+
+      (dateRange?.startDate ? '&startDate=' + dateRange?.startDate : '') +
+      (dateRange?.endDate ? '&endDate=' + dateRange?.endDate : '');
     setData([]);
     integrateGetApi(url, setData, authToken);
   }
@@ -70,7 +89,7 @@ export default function OrderList() {
       }
     }, searchkey ? 2000 : 0); // 2 seconds debounce only for `searchkey`
     return () => clearTimeout(handler); // Clear timeout on dependency change
-  }, [authToken, searchkey, currentPage, activeTab]);
+  }, [authToken, searchkey, currentPage, activeTab,dateRange]);
   const handleSearch = (e) => {
     setCurrentPage(1);
     setSearchkey(e.target.value)
@@ -135,7 +154,7 @@ export default function OrderList() {
       <div className="space-y-4 p-4">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
   <div className="flex flex-col md:flex-row w-full md:w-auto gap-2">
-  <DateRange/>
+  <DateRange handleDateChange={handleDateChange}/>
           <Input
             type="text"
             placeholder="Search Orders..."

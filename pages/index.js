@@ -43,15 +43,12 @@
 
 "use client";
 
-import DateRangePicker from "@/components/DateRange";
 import React, { useState } from "react";
 
 export default function Dashboard() {
-  const [dateRange, setDateRange] = useState({ from: null, to: null });
 
   return (
     <div className="">
-      <DateRangePicker selectedRange={dateRange} setSelectedRange={setDateRange} />
     </div>
   );
 }

@@ -20,6 +20,19 @@ export default function LeadList() {
   const [searchkey, setSearchkey] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const { data: session } = useSession();
+  const [dateRange, setDateRange] = useState({
+    rangeType: 'all',
+    startDate: null,
+    endDate: null,
+  })
+
+  const handleDateChange = ({ value, startDate, endDate }) => {
+    setDateRange({
+      rangeType: value,
+      startDate,
+      endDate,
+    })
+  }
   const authToken = session?.user?.token
   const userRole = session?.user?.role
   const basePath = userRole === "staff" ? "lead/staff" : "lead";
@@ -28,9 +41,11 @@ export default function LeadList() {
     basePath +
     '?page=' +
     currentPage +
-    '&limit=25'+
+    '&limit=15'+
     '&search=' +
-    searchkey
+    searchkey+
+    (dateRange?.startDate ? '&startDate=' + dateRange?.startDate : '') +
+    (dateRange?.endDate ? '&endDate=' + dateRange?.endDate : '');
 
     const refechData=()=>{
       integrateGetApi(url, setData, authToken);
@@ -45,7 +60,7 @@ export default function LeadList() {
       }
     }, searchkey ? 2000 : 0); // 2 seconds debounce only for `searchkey`
     return () => clearTimeout(handler); // Clear timeout on dependency change
-  }, [authToken, searchkey, currentPage]);
+  }, [authToken, searchkey, currentPage,dateRange]);
   const handleSearch = (e) => {
     setCurrentPage(1);
     setSearchkey(e.target.value)
@@ -56,7 +71,7 @@ export default function LeadList() {
     <div className="space-y-4 p-4">
   <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
   <div className="flex flex-col md:flex-row w-full md:w-auto gap-2">
-  <DateRange/>
+  <DateRange handleDateChange={handleDateChange}/>
     <Input
       type="text"
       placeholder="Search Leads..."
