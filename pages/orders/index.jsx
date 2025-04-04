@@ -19,6 +19,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { showToast } from "@/components/ToastComponent";
 import axios from "axios"; 
+import DateRange from "@/components/DateRange";
 export default function OrderList() { 
   const [activeTab, setActiveTab] = useState('All');
   const [loading, setLoading] = useState(false);
@@ -131,7 +132,9 @@ export default function OrderList() {
         </TabsList>
       </div>
       <div className="space-y-4 p-4">
-        <div className="flex justify-between items-center">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+  <div className="flex flex-col md:flex-row w-full md:w-auto gap-2">
+  <DateRange/>
           <Input
             type="text"
             placeholder="Search Orders..."
@@ -140,18 +143,17 @@ export default function OrderList() {
             className="w-full md:w-1/2"
           />
           <div className="space-x-2 flex">
-
           {activeTab=="Pending" &&<Button size="sm" className="h-7 gap-1 cursor-pointer" disabled={!selectedOrders?.length || loading} onClick={() => bulkUpdateOrderStatus('Dispatch')}>Dispatch</Button>}
           {activeTab=="Pending" && <Button size="sm" className="h-7 gap-1 cursor-pointer" disabled={!selectedOrders?.length || loading} onClick={() => bulkUpdateOrderStatus('Cancelled')}>Cancelled</Button>}
             <Order allProducts={allProducts} refechData={refechData} Children={<Button size="sm" className="h-7 gap-1 cursor-pointer">
               <PlusCircle className="h-3.5 w-3.5" />
-              <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+              <span>
                 Add Orders
               </span>
             </Button>} />
           </div>
         </div>
-
+        </div>
         <Table>
           <TableHeader>
             <TableRow>

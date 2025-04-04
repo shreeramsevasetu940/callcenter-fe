@@ -20,6 +20,7 @@ import { showToast } from "@/components/ToastComponent";
 import axios from "axios";
 import Delivery from "@/components/Delivery";
 import Link from "next/link";
+import DateRange from "@/components/DateRange";
 export default function DeliveryList() {
   const [activeTab, setActiveTab] = useState('All');
   const [loading, setLoading] = useState(false);
@@ -100,8 +101,8 @@ export default function DeliveryList() {
       };
 
       const response = await axios.put(process.env.NEXT_PUBLIC_BASEURL + 'order/bulk-update-status', payload, {
-          headers: { "auth-token": authToken, 'Content-Type': 'application/json' },
-        });
+        headers: { "auth-token": authToken, 'Content-Type': 'application/json' },
+      });
       if (response.status === 200 || response.status === 201) {
         refechData();
         showToast.success('order status change successfully');
@@ -130,27 +131,29 @@ export default function DeliveryList() {
         </TabsList>
       </div>
       <div className="space-y-4 p-4">
-        <div className="flex space-x-2 justify-between items-center">
-          <Input
-            type="text"
-            placeholder="Search Orders..."
-            value={searchkey}
-            onChange={handleSearch}
-            className="w-full md:w-1/2"
-          />
-          <div className="space-x-2 flex">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div className="flex flex-col md:flex-row w-full md:w-auto gap-2">
+            <DateRange />
+            <Input
+              type="text"
+              placeholder="Search Orders..."
+              value={searchkey}
+              onChange={handleSearch}
+              className="w-full md:w-1/2"
+            />
+            <div className="space-x-2 flex">
 
-          {["Pending","RTO"].includes(activeTab)&&<Button size="sm" className="max-md:block h-7 gap-1 cursor-pointer" disabled={!selectedOrders?.length || loading} onClick={() => bulkUpdateOrderStatus('Dispatch')}>Dispatch</Button>}
-          {activeTab=="Pending" && <Button size="sm" className="h-7 gap-1 cursor-pointer" disabled={!selectedOrders?.length || loading} onClick={() => bulkUpdateOrderStatus('Cancelled')}>Cancelled</Button>}
-          {activeTab=="Dispatch" && <Button size="sm" className="h-7 gap-1 cursor-pointer" disabled={!selectedOrders?.length || loading} onClick={() => bulkUpdateOrderStatus('Delivered')}>Delivered</Button>}
-          {activeTab=="Dispatch" && <Button size="sm" className="h-7 gap-1 cursor-pointer" disabled={!selectedOrders?.length || loading} onClick={() => bulkUpdateOrderStatus('RTO')}>RTO</Button>}
+              {["Pending", "RTO"].includes(activeTab) && <Button size="sm" className="max-md:block h-7 gap-1 cursor-pointer" disabled={!selectedOrders?.length || loading} onClick={() => bulkUpdateOrderStatus('Dispatch')}>Dispatch</Button>}
+              {activeTab == "Pending" && <Button size="sm" className="h-7 gap-1 cursor-pointer" disabled={!selectedOrders?.length || loading} onClick={() => bulkUpdateOrderStatus('Cancelled')}>Cancelled</Button>}
+              {activeTab == "Dispatch" && <Button size="sm" className="h-7 gap-1 cursor-pointer" disabled={!selectedOrders?.length || loading} onClick={() => bulkUpdateOrderStatus('Delivered')}>Delivered</Button>}
+              {activeTab == "Dispatch" && <Button size="sm" className="h-7 gap-1 cursor-pointer" disabled={!selectedOrders?.length || loading} onClick={() => bulkUpdateOrderStatus('RTO')}>RTO</Button>}
+            </div>
           </div>
         </div>
-
         <Table>
           <TableHeader>
             <TableRow>
-              {activeTab!=="All"&&<TableHead>
+              {activeTab !== "All" && <TableHead>
                 <Checkbox
                   checked={selectedOrders.length === data?.orderList?.length && data?.orderList?.length > 0}
                   onCheckedChange={handleSelectAll}
@@ -168,7 +171,7 @@ export default function DeliveryList() {
                   {column.label}
                 </TableHead>
               ))}
-              {activeTab=="Dispatch"&&<TableHead>
+              {activeTab == "Dispatch" && <TableHead>
                 Track Order
               </TableHead>}
             </TableRow>
@@ -177,7 +180,7 @@ export default function DeliveryList() {
             {data?.orderList?.length > 0 ? (
               data?.orderList?.map((item) => (
                 <TableRow key={item._id}>
-                {activeTab!=="All"&&<TableCell>
+                  {activeTab !== "All" && <TableCell>
                     <Checkbox
                       checked={selectedOrders.includes(item?._id)}
                       onCheckedChange={() => handleSelectOrder(item?._id)}
@@ -189,7 +192,7 @@ export default function DeliveryList() {
                   <TableCell><Badge>{item?.orderStatus}</Badge></TableCell>
                   <TableCell>{item?.deliveryPartner}</TableCell>
                   <TableCell><Delivery allProducts={allProducts} refechData={refechData} item={item} Children={<Button variant={'outline'}>Edit</Button>} /></TableCell>
-                {(activeTab=="Dispatch"&&item?.deliveryPartner=="Delhivery"&&item?.trackingId)&&<TableCell><Link target="_blank" href={`https://www.delhivery.com/track-v2/package/${item?.trackingId}`}><Button size={"sm"}>Track Order</Button></Link></TableCell>}
+                  {(activeTab == "Dispatch" && item?.deliveryPartner == "Delhivery" && item?.trackingId) && <TableCell><Link target="_blank" href={`https://www.delhivery.com/track-v2/package/${item?.trackingId}`}><Button size={"sm"}>Track Order</Button></Link></TableCell>}
                 </TableRow>
               ))
             ) : (
