@@ -1,7 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -13,19 +12,16 @@ import {
 import {PlusCircle, StepBack, StepForward } from "lucide-react";
 import { integrateGetApi } from "@/utils/api";
 import { useSession } from "next-auth/react";
-import Lead from "@/components/Lead";
-export default function LeadList() {
+import Balance from "@/components/Balance";
+export default function BalanceList() {
   const [data, setData] = useState([]);
   const [searchkey, setSearchkey] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const { data: session } = useSession();
   const authToken = session?.user?.token
-  const userRole = session?.user?.role
-  const basePath = userRole === "staff" ? "lead/staff" : "lead";
   const url =
     process.env.NEXT_PUBLIC_BASEURL +
-    basePath +
-    '?page=' +
+    'balance?page=' +
     currentPage +
     '&limit=25'+
     '&search=' +
@@ -53,18 +49,11 @@ export default function LeadList() {
   const totalPages = data?.totalPages??0;
   return (
     <div className="space-y-4 p-4">
-      <div className="flex justify-between items-center">
-        <Input
-          type="text"
-          placeholder="Search Leads..."
-          value={searchkey}
-          onChange={handleSearch}
-          className="w-full md:w-1/2"
-        />
-        <Lead refechData={refechData} Children={<Button size="sm" className="h-7 gap-1 cursor-pointer">
+      <div className="flex justify-end items-center">
+        <Balance refechData={refechData} Children={<Button size="sm" className="h-7 gap-1 cursor-pointer">
           <PlusCircle className="h-3.5 w-3.5" />
           <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-            Add Leads
+            Add Balance
           </span>
         </Button>} />
       </div>
@@ -73,8 +62,7 @@ export default function LeadList() {
         <TableHeader>
           <TableRow>
             {[
-              { key: "name", label: "Name" },
-              { key: "phone", label: "Phone" },
+              { key: "balance", label: "Balance" },
               { key: "action", label: "Action" },
             ].map((column) => (
               <TableHead key={column.key}>
@@ -84,12 +72,11 @@ export default function LeadList() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {data?.leadList?.length > 0 ? (
-            data?.leadList?.map((item) => (
+          {data?.balanceList?.length > 0 ? (
+            data?.balanceList?.map((item) => (
               <TableRow key={item._id}>
-                <TableCell>{item.name}</TableCell>
-                <TableCell>{item.phone}</TableCell>
-                <TableCell><Lead refechData={refechData} item={item} Children={<Button variant={'outline'}>Edit</Button>}/></TableCell>
+                <TableCell>{item.amount}</TableCell>
+                <TableCell><Balance refechData={refechData} item={item} Children={<Button variant={'outline'}>Edit</Button>}/></TableCell>
               </TableRow>
             ))
           ) : (
@@ -101,7 +88,7 @@ export default function LeadList() {
           )}
         </TableBody>
       </Table>
-      {data?.leadList?.length > 0 ? <div className="flex justify-between p-2 items-center">
+      {data?.balanceList?.length > 0 ? <div className="flex justify-between p-2 items-center">
         <div className="text-xs text-muted-foreground">
           Showing <strong>{currentPage}</strong> of <strong>{totalPages}</strong>{" "}
           pages

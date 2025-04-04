@@ -46,6 +46,10 @@ const navMain ={
           title: "Delivery",
           url: "/delivery",
         },
+        {
+          title: "Balance",
+          url: "/balance",
+        },
       ],
     },
     manager:{
