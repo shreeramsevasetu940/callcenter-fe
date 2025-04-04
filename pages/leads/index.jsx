@@ -154,7 +154,8 @@ export default function LeadList() {
     />
   </div>
 
-<Button disabled={loading} onClick={(e)=>downloadxls(e)}>Get Excel File</Button>
+<div className="flex space-x-2">
+<Button size="sm" className="h-7 gap-1 cursor-pointer" disabled={loading} onClick={(e)=>downloadxls(e)}>Get Excel File</Button>
   {/* Add Lead Button Section */}
   <Lead refechData={refechData} Children={<Button size="sm" className="h-7 gap-1 cursor-pointer">
           <PlusCircle className="h-3.5 w-3.5" />
@@ -162,6 +163,7 @@ export default function LeadList() {
             Add Leads
           </span>
         </Button>} />
+</div>
 </div>
 
       <Table>

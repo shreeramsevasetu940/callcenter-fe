@@ -161,7 +161,7 @@ export default function DeliveryList() {
       // Optional: Format and flatten nested data (e.g., user and product fields)
       const formattedData = rawData.map(order => ({
         OrderID: order._id || '',
-        StaffID: order.staffId || '',
+        StaffID: order.staffId?._id || '',
         Ref: order.staffId.name || '',
         Name: order.name || '',
         Phone: order.phone || '',
@@ -242,7 +242,7 @@ export default function DeliveryList() {
               {activeTab == "Pending" && <Button size="sm" className="h-7 gap-1 cursor-pointer" disabled={!selectedOrders?.length || loading} onClick={() => bulkUpdateOrderStatus('Cancelled')}>Cancelled</Button>}
               {activeTab == "Dispatch" && <Button size="sm" className="h-7 gap-1 cursor-pointer" disabled={!selectedOrders?.length || loading} onClick={() => bulkUpdateOrderStatus('Delivered')}>Delivered</Button>}
               {activeTab == "Dispatch" && <Button size="sm" className="h-7 gap-1 cursor-pointer" disabled={!selectedOrders?.length || loading} onClick={() => bulkUpdateOrderStatus('RTO')}>RTO</Button>}
-              <Button disabled={loading} onClick={(e)=>downloadxls(e)}>Get Excel File</Button>
+              <Button size="sm" className="h-7 gap-1 cursor-pointer" disabled={loading} onClick={(e)=>downloadxls(e)}>Get Excel File</Button>
             </div>
           {/* </div> */}
         </div>
