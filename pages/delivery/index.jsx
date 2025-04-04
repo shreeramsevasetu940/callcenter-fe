@@ -22,6 +22,7 @@ import Delivery from "@/components/Delivery";
 import Link from "next/link";
 import DateRange from "@/components/DateRange";
 import * as XLSX from "xlsx";
+import moment from "moment";
 export default function DeliveryList() {
   const [activeTab, setActiveTab] = useState('All');
   const [loading, setLoading] = useState(false);
@@ -210,6 +211,26 @@ export default function DeliveryList() {
       setLoading(false);
     }
   };
+
+  const fields = [
+    { key: "name", label: "Name" },
+    { key: "phone", label: "Phone" },
+    { key: "amount", label: "Amount" },
+    { key: "status", label: "Status" },
+    { key: "deliveryPartner", label: "DeliveryPartner" },
+    { key: "createdAt", label: "CreatedAt" },
+    { key: "action", label: "Action" },
+  ];
+  
+  if (activeTab=="Dispatch") {
+    fields.splice(6, 0, { label: "dispatchDate", name: "DispatchDate"});
+  }
+  if (activeTab=="Delivered") {
+    fields.splice(6, 0, { label: "deliveredDate", name: "DeliveredDate"});
+  }
+  if (activeTab=="RTO") {
+    fields.splice(6, 0, { label: "rtoDate", name: "RtoDate"});
+  }
   
 
   const totalPages = data?.totalPages ?? 0;
@@ -255,14 +276,7 @@ export default function DeliveryList() {
                   onCheckedChange={handleSelectAll}
                 />
               </TableHead>}
-              {[
-                { key: "name", label: "Name" },
-                { key: "phone", label: "Phone" },
-                { key: "amount", label: "Amount" },
-                { key: "status", label: "Status" },
-                { key: "deliveryPartner", label: "DeliveryPartner" },
-                { key: "action", label: "Action" },
-              ].map((column) => (
+              {fields?.map((column) => (
                 <TableHead key={column.key}>
                   {column.label}
                 </TableHead>
@@ -287,6 +301,10 @@ export default function DeliveryList() {
                   <TableCell>{item?.price}</TableCell>
                   <TableCell><Badge>{item?.orderStatus}</Badge></TableCell>
                   <TableCell>{item?.deliveryPartner}</TableCell>
+                  <TableCell>{moment(item?.createdAt).format('lll')}</TableCell>
+                  {activeTab=="Dispatch"&&<TableCell>{moment(item?.dispatchDate).format('lll')}</TableCell>}
+                  {activeTab=="Delivered"&&<TableCell>{moment(item?.deliveredDate).format('lll')}</TableCell>}
+                  {activeTab=="RTO"&&<TableCell>{moment(item?.rtoDate).format('lll')}</TableCell>}
                   <TableCell><Delivery allProducts={allProducts} refechData={refechData} item={item} Children={<Button variant={'outline'}>Edit</Button>} /></TableCell>
                   {(activeTab == "Dispatch" && item?.deliveryPartner == "Delhivery" && item?.trackingId) && <TableCell><Link target="_blank" href={`https://www.delhivery.com/track-v2/package/${item?.trackingId}`}><Button size={"sm"}>Track Order</Button></Link></TableCell>}
                 </TableRow>

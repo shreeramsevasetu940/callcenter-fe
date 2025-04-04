@@ -10,19 +10,19 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { PlusCircle, StepBack, StepForward } from "lucide-react";
+import { StepBack, StepForward } from "lucide-react";
 import { integrateGetApi } from "@/utils/api";
 import { useSession } from "next-auth/react";
-import Order from "@/components/Order";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { showToast } from "@/components/ToastComponent";
-import axios from "axios"; 
+import axios from "axios";
+import Link from "next/link";
 import DateRange from "@/components/DateRange";
-import moment from "moment/moment";
-export default function OrderList() { 
-  const [activeTab, setActiveTab] = useState('All');
+import * as XLSX from "xlsx";
+export default function DeliveryList() {
+  const [activeTab, setActiveTab] = useState('FeedBack');
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState([]);
   const [searchkey, setSearchkey] = useState("");
@@ -30,7 +30,6 @@ export default function OrderList() {
   const [allProducts, setAllProducts] = useState(null);
   const [selectedOrders, setSelectedOrders] = useState([]);
   const { data: session } = useSession();
-
   const [dateRange, setDateRange] = useState({
     rangeType: 'all',
     startDate: null,
@@ -44,40 +43,32 @@ export default function OrderList() {
       endDate,
     })
   }
-
   const authToken = session?.user?.token
   const url =
     process.env.NEXT_PUBLIC_BASEURL +
-    'order/staff?page=' +
+    'order?page=' +
     currentPage +
     '&limit=25' +
     '&search=' +
     searchkey +
     '&status=' +
-    activeTab+
+    activeTab +
     (dateRange?.startDate ? '&startDate=' + dateRange?.startDate : '') +
     (dateRange?.endDate ? '&endDate=' + dateRange?.endDate : '');
 
   const refechData = () => {
     const url =
       process.env.NEXT_PUBLIC_BASEURL +
-      'order/staff?page=1&limit=25&search=' +
+      'order?page=1&limit=25&search=' +
       searchkey +
       '&status=' +
-      activeTab+
+      activeTab +
       (dateRange?.startDate ? '&startDate=' + dateRange?.startDate : '') +
       (dateRange?.endDate ? '&endDate=' + dateRange?.endDate : '');
+
     setData([]);
     integrateGetApi(url, setData, authToken);
   }
-
-  useEffect(() => {
-    if (authToken) {
-      const url = process.env.NEXT_PUBLIC_BASEURL +
-        'product?limit=999999'
-      integrateGetApi(url, setAllProducts, authToken)
-    }
-  }, [authToken])
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -90,7 +81,8 @@ export default function OrderList() {
       }
     }, searchkey ? 2000 : 0); // 2 seconds debounce only for `searchkey`
     return () => clearTimeout(handler); // Clear timeout on dependency change
-  }, [authToken, searchkey, currentPage, activeTab,dateRange]);
+  }, [authToken, searchkey, currentPage, activeTab, dateRange]);
+
   const handleSearch = (e) => {
     setCurrentPage(1);
     setSearchkey(e.target.value)
@@ -121,8 +113,8 @@ export default function OrderList() {
       };
 
       const response = await axios.put(process.env.NEXT_PUBLIC_BASEURL + 'order/bulk-update-status', payload, {
-          headers: { "auth-token": authToken, 'Content-Type': 'application/json' },
-        });
+        headers: { "auth-token": authToken, 'Content-Type': 'application/json' },
+      });
       if (response.status === 200 || response.status === 201) {
         refechData();
         showToast.success('order status change successfully');
@@ -137,86 +129,140 @@ export default function OrderList() {
     }
   };
 
-  const fields = [
-    { key: "name", label: "Name" },
-    { key: "phone", label: "Phone" },
-    { key: "amount", label: "Amount" },
-    { key: "status", label: "Status" },
-    { key: "deliveryPartner", label: "DeliveryPartner" },
-    { key: "createdAt", label: "CreatedAt" },
-    { key: "action", label: "Action" },
-  ];
+  const downloadxls = async (e) => {
+    try {
+      setLoading(true);
+      e.preventDefault();
   
-  if (activeTab=="Dispatch") {
-    fields.splice(6, 0, { label: "dispatchDate", name: "DispatchDate"});
-  }
-  if (activeTab=="Delivered") {
-    fields.splice(6, 0, { label: "deliveredDate", name: "DeliveredDate"});
-  }
-  if (activeTab=="RTO") {
-    fields.splice(6, 0, { label: "rtoDate", name: "RtoDate"});
-  }
-
+      const baseUrl = process.env.NEXT_PUBLIC_BASEURL;
+      const query = `order?page=1&limit=9999999999&search=${searchkey}&status=${activeTab}` +
+        (dateRange?.startDate ? `&startDate=${dateRange.startDate}` : '') +
+        (dateRange?.endDate ? `&endDate=${dateRange.endDate}` : '');
+      const url = `${baseUrl}${query}`;
+  
+      const response = await axios.get(url, {
+        headers: {
+          'Content-Type': 'application/json',
+          'auth-token': authToken,
+        },
+      });
+  
+      const rawData = response?.data?.orderList || [];
+  
+      // Optional: Format and flatten nested data (e.g., user and product fields)
+      const formattedData = rawData.map(order => ({
+        OrderID: order._id || '',
+        StaffID: order.staffId?._id || '',
+        Ref: order.staffId.name || '',
+        Name: order.name || '',
+        Phone: order.phone || '',
+        OrderStatus: order.orderStatus || '',
+        Branch: order.branch || '',
+        FeedbackCallDays: order.feedbackCallDays || '',
+        FeedbackCallDate: order.feedbackCallDate ? new Date(order.feedbackCallDate).toLocaleDateString() : '',
+        DispatchDate: order.dispatchDate ? new Date(order.dispatchDate).toLocaleDateString() : '',
+        CreatedAt: order.createdAt ? new Date(order.createdAt).toLocaleString() : '',
+        Price: order.price || '',
+        Products: order.products?.map(p => `${p.name} (Qty: ${p.qty}, ₹${p.price})`).join(', ') || '',
+        Address: order.address?.address || '',
+        Pincode: order.address?.pincode || '',
+        Village: order.address?.village || '',
+        District: order.address?.district || '',
+        Taluka: order.address?.taluka || '',
+        State: order.address?.state || '',
+        Landmark: order.address?.landmark || '',
+      }));
+  
+      const ws = XLSX.utils.json_to_sheet(formattedData);
+  
+      // Dynamic column width
+      const maxLengths = formattedData.reduce((acc, row) => {
+        Object.keys(row).forEach(key => {
+          const value = row[key]?.toString() || '';
+          const length = value.length;
+          if (!acc[key] || length > acc[key]) {
+            acc[key] = length;
+          }
+        });
+        return acc;
+      }, {});
+  
+      const cols = Object.keys(maxLengths).map(key => ({
+        wch: maxLengths[key] < 20 ? 20 : maxLengths[key]
+      }));
+      ws['!cols'] = cols;
+  
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Orders');
+      XLSX.writeFile(wb, 'orders.xlsx');
+    } catch (error) {
+      console.error("Failed to download XLS:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
 
   const totalPages = data?.totalPages ?? 0;
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab}>
       <div className="flex justify-between items-center">
         <TabsList className={'m-2'}>
-          <TabsTrigger className={'cursor-pointer'} value="All">All</TabsTrigger>
-          <TabsTrigger className={'cursor-pointer'} value="Pending">Pending</TabsTrigger>
-          <TabsTrigger className={'cursor-pointer'} value="Dispatch">Dispatch</TabsTrigger>
-          <TabsTrigger className={'cursor-pointer'} value="Delivered">Delivered</TabsTrigger>
-          <TabsTrigger className={'cursor-pointer'} value="Cancelled">Cancelled</TabsTrigger>
-          <TabsTrigger className={'cursor-pointer'} value="RTO">RTO</TabsTrigger>
+          <TabsTrigger className={'cursor-pointer'} value="FeedBack">FeedBack Call</TabsTrigger>
+          <TabsTrigger className={'cursor-pointer'} value="RTO">RTO Call</TabsTrigger>
         </TabsList>
       </div>
       <div className="space-y-4 p-4">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-  <div className="flex flex-col md:flex-row w-full md:w-auto gap-2">
-  <DateRange handleDateChange={handleDateChange}/>
-          <Input
-            type="text"
-            placeholder="Search Orders..."
-            value={searchkey}
-            onChange={handleSearch}
-            className="w-full md:w-96"
-          />
-          <div className="space-x-2 flex">
-          {activeTab=="Pending" &&<Button size="sm" className="h-7 gap-1 cursor-pointer" disabled={!selectedOrders?.length || loading} onClick={() => bulkUpdateOrderStatus('Dispatch')}>Dispatch</Button>}
-          {activeTab=="Pending" && <Button size="sm" className="h-7 gap-1 cursor-pointer" disabled={!selectedOrders?.length || loading} onClick={() => bulkUpdateOrderStatus('Cancelled')}>Cancelled</Button>}
-          </div>
-          </div>
-          <div className="ml-auto">
-            <Order allProducts={allProducts} refechData={refechData} Children={<Button size="sm" className="h-7 gap-1 cursor-pointer">
-              <PlusCircle className="h-3.5 w-3.5" />
-              <span>
-                Add Orders
-              </span>
-            </Button>} />
-        </div>
+          <div className="flex flex-col md:flex-row w-full md:w-auto gap-2">
+            <DateRange handleDateChange={handleDateChange} />
+            <Input
+              type="text"
+              placeholder="Search Orders..."
+              value={searchkey}
+              onChange={handleSearch}
+              className="w-full md:w-96"
+            />
+            </div>
+            <div className="space-x-2 flex">
+              {["Pending", "RTO"].includes(activeTab) && <Button size="sm" className="max-md:block h-7 gap-1 cursor-pointer" disabled={!selectedOrders?.length || loading} onClick={() => bulkUpdateOrderStatus('Dispatch')}>Dispatch</Button>}
+              {activeTab == "Pending" && <Button size="sm" className="h-7 gap-1 cursor-pointer" disabled={!selectedOrders?.length || loading} onClick={() => bulkUpdateOrderStatus('Cancelled')}>Cancelled</Button>}
+              {activeTab == "Dispatch" && <Button size="sm" className="h-7 gap-1 cursor-pointer" disabled={!selectedOrders?.length || loading} onClick={() => bulkUpdateOrderStatus('Delivered')}>Delivered</Button>}
+              {activeTab == "Dispatch" && <Button size="sm" className="h-7 gap-1 cursor-pointer" disabled={!selectedOrders?.length || loading} onClick={() => bulkUpdateOrderStatus('RTO')}>RTO</Button>}
+              <Button size="sm" className="h-7 gap-1 cursor-pointer" disabled={loading} onClick={(e)=>downloadxls(e)}>Get Excel File</Button>
+            </div>
+          {/* </div> */}
         </div>
         <Table>
           <TableHeader>
             <TableRow>
-              {activeTab=="Pending"&&<TableHead>
+              {activeTab !== "All" && <TableHead>
                 <Checkbox
                   checked={selectedOrders.length === data?.orderList?.length && data?.orderList?.length > 0}
                   onCheckedChange={handleSelectAll}
                 />
               </TableHead>}
-              {fields?.map((column) => (
+              {[
+                { key: "name", label: "Name" },
+                { key: "phone", label: "Phone" },
+                { key: "amount", label: "Amount" },
+                { key: "status", label: "Status" },
+                { key: "deliveryPartner", label: "DeliveryPartner" },
+              ].map((column) => (
                 <TableHead key={column.key}>
                   {column.label}
                 </TableHead>
               ))}
+              {activeTab == "Dispatch" && <TableHead>
+                Track Order
+              </TableHead>}
             </TableRow>
           </TableHeader>
           <TableBody>
             {data?.orderList?.length > 0 ? (
               data?.orderList?.map((item) => (
                 <TableRow key={item._id}>
-                {activeTab=="Pending"&&<TableCell>
+                  {activeTab !== "All" && <TableCell>
                     <Checkbox
                       checked={selectedOrders.includes(item?._id)}
                       onCheckedChange={() => handleSelectOrder(item?._id)}
@@ -227,11 +273,7 @@ export default function OrderList() {
                   <TableCell>{item?.price}</TableCell>
                   <TableCell><Badge>{item?.orderStatus}</Badge></TableCell>
                   <TableCell>{item?.deliveryPartner}</TableCell>
-                  <TableCell>{moment(item?.createdAt).format('lll')}</TableCell>
-                  {activeTab=="Dispatch"&&<TableCell>{moment(item?.dispatchDate).format('lll')}</TableCell>}
-                  {activeTab=="Delivered"&&<TableCell>{moment(item?.deliveredDate).format('lll')}</TableCell>}
-                  {activeTab=="RTO"&&<TableCell>{moment(item?.rtoDate).format('lll')}</TableCell>}
-                  <TableCell><Order allProducts={allProducts} refechData={refechData} item={item} Children={<Button variant={'outline'}>Edit</Button>} /></TableCell>
+                  {(activeTab == "Dispatch" && item?.deliveryPartner == "Delhivery" && item?.trackingId) && <TableCell><Link target="_blank" href={`https://www.delhivery.com/track-v2/package/${item?.trackingId}`}><Button size={"sm"}>Track Order</Button></Link></TableCell>}
                 </TableRow>
               ))
             ) : (

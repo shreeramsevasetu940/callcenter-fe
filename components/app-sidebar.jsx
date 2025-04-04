@@ -49,6 +49,10 @@ const navMain ={
           title: "Balance",
           url: "/balance",
         },
+        {
+          title: "FeedBack",
+          url: "/feedback",
+        },
       ],
     },
     manager:{
